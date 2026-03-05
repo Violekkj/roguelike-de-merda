@@ -13,14 +13,29 @@ class Dungeon {
             return;
         }
 
-        const bossHealth = 100 + (this.currentRoom * 50);
-        const bossName = `Guardião da Sala ${this.currentRoom}`;
+        const bossHealth = 150 + (this.currentRoom * 80);
+        const bossName = this.getBossName(this.currentRoom);
         const bossColor = this.getBossColor(this.currentRoom);
 
-        this.currentBoss = new Boss(bossName, bossHealth, bossColor);
+        // Atribuir TEMA de boss baseado na sala
+        let bossTheme = 'alien';
+        if (this.currentRoom >= 7) bossTheme = 'mutant';
+        else if (this.currentRoom >= 4) bossTheme = 'barbarian';
+
+        this.currentBoss = new Boss(bossName, bossHealth, bossColor, bossTheme);
         this.gameState = 'playing';
 
         document.getElementById('room-number').innerText = `${this.currentRoom} / ${this.totalRooms}`;
+    }
+
+    getBossName(room) {
+        const names = [
+            "Sentinela de Plasma", "Nave Batedora X-1", "Supremo de Netuno",
+            "General Grrog", "Bárbaro da Cicatriz", "Conquistador de Reinos",
+            "Gloom Amorfo", "Mutante Radioativo", "Colosso da Podridão",
+            "ANTIGRAVITY PRIME"
+        ];
+        return names[room - 1] || `Inimigo ${room}`;
     }
 
     getBossColor(room) {
