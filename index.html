@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity Roguelike - Boss Rush</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Um roguelike boss rush épico com mecânicas de espada, arco e dash. Enfrente 10 chefes únicos.">
+</head>
+<body>
+    <div id="game-container">
+        <header id="game-header">
+            <h1 class="premium-title">ANTIGRAVITY</h1>
+            <div id="game-stats">
+                <div class="stat-box">
+                    <span class="label">SALA</span>
+                    <span id="room-number" class="value">1 / 10</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">HP</span>
+                    <div class="hp-bar-container">
+                        <div id="player-hp-bar" class="hp-bar"></div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <span class="label">STAMINA</span>
+                    <div class="stamina-bar-container">
+                        <div id="player-stamina-bar" class="stamina-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="game-viewport">
+            <canvas id="game-canvas"></canvas>
+            <div id="ui-overlay">
+                <div id="start-screen" class="overlay-screen active">
+                    <div class="glass-panel">
+                        <h2>Pronto para o Desafio?</h2>
+                        <p>Enfrente 10 chefes em sequência. Use sua espada para dano pesado e seu arco para manter a distância.</p>
+                        <button id="start-button" class="premium-button">INICIAR JORNADA</button>
+                    </div>
+                </div>
+                <div id="game-over-screen" class="overlay-screen">
+                    <div class="glass-panel">
+                        <h2>Fim de Jogo</h2>
+                        <p id="death-message">Você tombou em combate.</p>
+                        <button id="restart-button" class="premium-button">TENTAR NOVAMENTE</button>
+                    </div>
+                </div>
+                <div id="victory-screen" class="overlay-screen">
+                    <div class="glass-panel">
+                        <h2>Vitória Épica!</h2>
+                        <p>Você derrotou todos os 10 chefes e conquistou o Antigravity.</p>
+                        <button id="play-again-button" class="premium-button">REINICIAR</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer id="game-controls-hint">
+            <div class="control-hint"><span>WASD</span> Mover</div>
+            <div class="control-hint"><span>Botão Esq.</span> Espada</div>
+            <div class="control-hint"><span>Botão Dir.</span> Arco</div>
+            <div class="control-hint"><span>Espaço</span> Dash</div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/player.js"></script>
+    <script src="js/boss.js"></script>
+    <script src="js/dungeon.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
