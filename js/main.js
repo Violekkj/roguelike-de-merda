@@ -17,8 +17,21 @@ let playerProjectiles = [];
 
 // Controle de Input
 const keys = {};
-window.addEventListener('keydown', e => keys[e.key] = true);
-window.addEventListener('keyup', e => keys[e.key] = false);
+window.addEventListener('keydown', e => {
+    keys[e.key] = true;
+    if(e.key) keys[e.key.toLowerCase()] = true; 
+});
+window.addEventListener('keyup', e => {
+    keys[e.key] = false;
+    if(e.key) keys[e.key.toLowerCase()] = false;
+});
+
+// Se a janela perder o foco (ex: clicar sem querer fora do jogo na borda de baixo), solta as teclas!
+window.addEventListener('blur', () => {
+    for (let k in keys) {
+        keys[k] = false;
+    }
+});
 
 // Controle de Mouse (Combate)
 let mouse = { x: 0, y: 0, click: false, rightClick: false };
