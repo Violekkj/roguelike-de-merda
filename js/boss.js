@@ -10,10 +10,11 @@ class Boss {
         this.x = 450;
         this.y = 200;
 
-        this.state = 'idle';
+        this.state = 'spawning';
+        this.spawnTimer = 2000;
         this.telegraphTimer = 0;
         this.telegraphDuration = 800; // Será sobrescrito pelo ataque
-        this.lastAttackTime = 0;
+        this.lastAttackTime = Date.now() + 2000; // Começa a contar após o spawn
         this.attackCooldown = config.cooldown;
         this.patterns = config.patterns;
 
@@ -39,8 +40,16 @@ class Boss {
         this.walkBob = Math.abs(Math.sin(this.stepPhase)) * (this.radius * 0.1); 
         this.walkTilt = Math.sin(this.stepPhase) * 0.1; 
 
+        if (this.state === 'spawning') {
+            this.spawnTimer -= deltaTime;
+            if (this.spawnTimer <= 0) {
+                this.state = 'idle';
+                this.lastAttackTime = Date.now();
+            }
+        }
+
         // --- LÓGICA DE MOVIMENTO ---
-        if (this.state !== 'attacking') {
+        if (this.state !== 'attacking' && this.state !== 'spawning') {
             if (this.moveType === 'chase') {
                 const dx = player.x - this.x;
                 const dy = player.y - this.y;
@@ -256,6 +265,7 @@ class Boss {
     }
 
     takeDamage(amount) {
+        if (this.state === 'spawning') return; // Boss imortal ao spawnar
         this.health -= amount;
         if (this.health < 0) this.health = 0;
     }
@@ -265,6 +275,12 @@ class Boss {
 
         // --- ANIMAÇÃO DE CORPO (BOB E TILT) ---
         ctx.save();
+        
+        // Efeito visual de recém-surgido (Piscando)
+        if (this.state === 'spawning') {
+            ctx.globalAlpha = 0.3 + Math.abs(Math.sin(Date.now() / 150)) * 0.7;
+        }
+
         ctx.translate(this.x, this.y - this.walkBob);
         ctx.rotate(this.walkTilt);
         ctx.translate(-this.x, -(this.y - this.walkBob));
@@ -382,181 +398,234 @@ class Boss {
 
         switch(this.theme) {
             case 'apprentice':
-                // Manto simples
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y - this.radius);
-                ctx.lineTo(this.x + this.radius, this.y + this.radius);
-                ctx.lineTo(this.x - this.radius, this.y + this.radius);
-                ctx.closePath();
-                ctx.fill();
-                // Fenda do capuz
-                ctx.fillStyle = '#0a0a0a';
-                ctx.beginPath(); ctx.arc(this.x, this.y - 10, 15, 0, Math.PI * 2); ctx.fill();
+                // Manto ondulado (Apprentice)
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.moveTo(this.x, this.y - this.radius); 
+                ctx.lineTo(this.x + this.radius + 10, this.y + this.radius + 15);
+                ctx.lineTo(this.x - this.radius - 10, this.y + this.radius + 15); ctx.fill();
+                // Detalhe dourado
+                ctx.strokeStyle = '#daa520'; ctx.lineWidth = 3; ctx.moveTo(this.x, this.y - this.radius); ctx.lineTo(this.x, this.y + this.radius); ctx.stroke();
+                // Capuz
+                ctx.fillStyle = '#0a0a0a'; ctx.beginPath(); ctx.arc(this.x, this.y - 12, 18, 0, Math.PI * 2); ctx.fill();
+                // Olhos
                 ctx.fillStyle = this.color; ctx.shadowBlur = 20; ctx.shadowColor = this.color;
-                ctx.beginPath(); ctx.arc(this.x - 5, this.y - 12, 3, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.x + 5, this.y - 12, 3, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x - 6, this.y - 14, 4, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x + 6, this.y - 14, 4, 0, Math.PI*2); ctx.fill();
+                // Cajado Mágico
+                ctx.fillStyle = '#5c4033'; ctx.fillRect(this.x + this.radius + 5, this.y - 30, 4, 60);
+                ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x + this.radius + 7, this.y - 35, 8, 0, Math.PI*2); ctx.fill();
                 break;
 
             case 'skeleton':
-                // Caveira Brutal (Ossos gigantes)
-                ctx.fillStyle = '#fff';
-                ctx.beginPath(); ctx.arc(this.x, this.y - 10, this.radius, 0, Math.PI*2); ctx.fill();
-                ctx.fillRect(this.x - this.radius + 15, this.y, this.radius - 15, this.radius);
-                // Olhos vazios
-                ctx.fillStyle = '#000';
-                ctx.beginPath(); ctx.arc(this.x - 15, this.y - 20, 12, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.x + 15, this.y - 20, 12, 0, Math.PI*2); ctx.fill();
-                // Fogo nos olhos
-                ctx.fillStyle = this.color; ctx.shadowBlur = 10; ctx.shadowColor = this.color;
-                ctx.beginPath(); ctx.arc(this.x - 15, this.y - 20, 4, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.x + 15, this.y - 20, 4, 0, Math.PI*2); ctx.fill();
+                // Crânio muito mais detalhado
+                ctx.fillStyle = '#e0e0e0';
+                ctx.beginPath(); ctx.arc(this.x, this.y - 10, this.radius, 0, Math.PI*2); ctx.fill(); // Topo
+                ctx.fillRect(this.x - 15, this.y + this.radius - 12, 30, 20); // Maxilar
+                // Dentes
+                ctx.strokeStyle = '#222'; ctx.lineWidth = 2;
+                for(let i=-10; i<=10; i+=5) { ctx.beginPath(); ctx.moveTo(this.x + i, this.y + this.radius-5); ctx.lineTo(this.x + i, this.y + this.radius + 8); ctx.stroke(); }
+                // Olhos
+                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(this.x - 15, this.y - 15, 12, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x + 15, this.y - 15, 12, 0, Math.PI*2); ctx.fill();
+                // Nariz de caveira
+                ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - 5, this.y + 10); ctx.lineTo(this.x + 5, this.y + 10); ctx.fill();
+                // Chamas nos olhos
+                ctx.fillStyle = this.color; ctx.shadowBlur = 15; ctx.shadowColor = this.color;
+                ctx.beginPath(); ctx.arc(this.x - 15, this.y - 15, 5 + Math.random()*2, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x + 15, this.y - 15, 5 + Math.random()*2, 0, Math.PI*2); ctx.fill();
                 break;
 
             case 'cultist':
-                // Cultista das Chamas (Manto chifrudo)
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y - this.radius - 15);
-                ctx.lineTo(this.x + this.radius, this.y + this.radius);
-                ctx.lineTo(this.x - this.radius, this.y + this.radius);
-                ctx.closePath();
-                ctx.fill();
-                // Chifres do capuz
-                ctx.fillStyle = '#111';
-                ctx.beginPath(); ctx.moveTo(this.x - 15, this.y - 20); ctx.lineTo(this.x - 30, this.y - 40); ctx.lineTo(this.x - 5, this.y - 15); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(this.x + 15, this.y - 20); ctx.lineTo(this.x + 30, this.y - 40); ctx.lineTo(this.x + 5, this.y - 15); ctx.fill();
-                // Face negra
-                ctx.beginPath(); ctx.arc(this.x, this.y, 18, 0, Math.PI*2); ctx.fill();
+                // Vestes cerimoniais pesadas
                 ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, 6, 0, Math.PI*2); ctx.fill(); // Third eye
+                ctx.fillRect(this.x - this.radius, this.y - 20, this.radius * 2, this.radius * 2 + 10);
+                // Adornos de ombro
+                ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(this.x - this.radius, this.y - 10, 15, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x + this.radius, this.y - 10, 15, 0, Math.PI*2); ctx.fill();
+                // Rosto Sombrio
+                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(this.x, this.y - 25, 20, 0, Math.PI*2); ctx.fill();
+                // Chifres Longos e Curvados
+                ctx.fillStyle = '#111';
+                ctx.beginPath(); ctx.moveTo(this.x - 15, this.y - 35); ctx.quadraticCurveTo(this.x - 40, this.y - 60, this.x - 10, this.y - 20); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x + 15, this.y - 35); ctx.quadraticCurveTo(this.x + 40, this.y - 60, this.x + 10, this.y - 20); ctx.fill();
+                // Olho flutuante no peito
+                ctx.fillStyle = '#ff0000'; ctx.shadowBlur = 15; ctx.shadowColor = '#ff0000';
+                ctx.beginPath(); ctx.arc(this.x, this.y + 10, 8, 0, Math.PI*2); ctx.fill();
                 break;
 
             case 'fallen_knight':
-                // Cavaleiro Caído (Armadura Negra)
+                // Armadura de Placas Pesada
+                ctx.fillStyle = '#2a2a2a'; // Metal escuro
+                // Tronco
+                ctx.fillRect(this.x - this.radius, this.y - this.radius + 15, this.radius * 2, this.radius * 2);
+                // Pauldrons (Ombreiras grandes)
+                ctx.fillRect(this.x - this.radius - 15, this.y - this.radius + 5, 20, 30);
+                ctx.fillRect(this.x + this.radius - 5, this.y - this.radius + 5, 20, 30);
+                // Capacete de Cavaleiro
                 ctx.fillStyle = '#222';
-                ctx.fillRect(this.x - this.radius, this.y - this.radius + 10, this.radius * 2, this.radius * 2 - 10);
-                // Capa ou penacho vermelho
-                ctx.fillStyle = this.color; 
-                ctx.fillRect(this.x - this.radius - 8, this.y - this.radius - 15, this.radius * 2 + 16, 25);
-                // Fenda do Elmo
+                ctx.beginPath(); ctx.arc(this.x, this.y - this.radius + 5, 22, Math.PI, 0); ctx.fill();
+                ctx.fillRect(this.x - 22, this.y - this.radius + 5, 44, 20);
+                // Cruz/Fenda no Rosto
                 ctx.fillStyle = '#000';
-                ctx.fillRect(this.x - 25, this.y - 10, 50, 10);
-                // Brilho dos olhos
-                ctx.fillStyle = '#ff4d4d'; ctx.shadowBlur = 15; ctx.shadowColor = '#ff4d4d';
-                ctx.fillRect(this.x - 10, this.y - 8, 20, 6);
+                ctx.fillRect(this.x - 2, this.y - this.radius, 4, 25); // Fenda Vertical
+                ctx.fillRect(this.x - 15, this.y - this.radius + 10, 30, 6); // Fenda Horizontal
+                // Brilho demoníaco na fenda horizontal
+                ctx.fillStyle = this.color; ctx.shadowBlur = 10; ctx.shadowColor = this.color;
+                ctx.fillRect(this.x - 10, this.y - this.radius + 11, 20, 4);
+                // Capa esfarrapada vermelha
+                ctx.fillStyle = '#8b0000'; ctx.shadowBlur = 0;
+                ctx.beginPath(); ctx.moveTo(this.x - this.radius, this.y - this.radius + 15); ctx.lineTo(this.x - this.radius - 30, this.y + this.radius + 20); ctx.lineTo(this.x - this.radius + 10, this.y + 10); ctx.fill();
                 break;
 
             case 'slime':
-                // Amontoado tóxico
+                // Monstro Gelatinoso Completo
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                for (let i = 0; i < 16; i++) {
-                    const a = (Math.PI * 2 / 16) * i + this.bobbing;
-                    const r = this.radius + Math.sin(this.bobbing * 8 + i * 3) * 15;
+                for (let i = 0; i < 24; i++) {
+                    const a = (Math.PI * 2 / 24) * i + this.bobbing;
+                    // Raio oscilante imitando gosma mole
+                    const r = this.radius + Math.sin(this.bobbing * 15 + i * 4) * 8 + Math.cos(this.bobbing * 8 + i * 2) * 12;
                     const px = this.x + Math.cos(a) * r;
-                    const py = this.y + Math.sin(a) * r + 10;
+                    const py = this.y + Math.sin(a) * r * 0.8 + 10;
                     if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
                 }
                 ctx.closePath();
                 ctx.fill();
-                // Detritos flutuando dentro
+                // Reflexo nojentinho no topo
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.beginPath(); ctx.ellipse(this.x - 15, this.y - this.radius/2, 15, 6, -0.2, 0, Math.PI*2); ctx.fill();
+                // Olhos descolados e derretidos
                 ctx.fillStyle = '#111';
-                ctx.beginPath(); ctx.arc(this.x - 20, this.y, 8 + Math.sin(this.bobbing*5)*2, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(this.x + 25, this.y + 10, 6 + Math.cos(this.bobbing*4)*2, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x - 20, this.y + Math.sin(this.bobbing*5)*5, 12, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x + 25, this.y + 10 + Math.cos(this.bobbing*4)*5, 8, 0, Math.PI*2); ctx.fill();
+                // Pupilas
+                ctx.fillStyle = '#32cd32';
+                ctx.beginPath(); ctx.arc(this.x - 20, this.y + Math.sin(this.bobbing*5)*5, 3, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x + 25, this.y + 10 + Math.cos(this.bobbing*4)*5, 2, 0, Math.PI*2); ctx.fill();
                 break;
 
             case 'assassin':
-                // Figura ágil, esguia.
-                ctx.fillStyle = '#1a1a2e';
-                ctx.fillRect(this.x - this.radius*.6, this.y - this.radius, this.radius*1.2, this.radius*2);
-                ctx.fillStyle = '#333'; // Lenço do rosto
-                ctx.fillRect(this.x - this.radius*.6, this.y - 5, this.radius*1.2, this.radius);
-                ctx.fillStyle = this.color; // Olhos roxos de fenda
-                ctx.shadowBlur = 15; ctx.shadowColor = this.color;
-                ctx.beginPath(); ctx.moveTo(this.x - 10, this.y - 15); ctx.lineTo(this.x, this.y - 12); ctx.lineTo(this.x - 8, this.y - 10); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(this.x + 10, this.y - 15); ctx.lineTo(this.x, this.y - 12); ctx.lineTo(this.x + 8, this.y - 10); ctx.fill();
+                // Assassino Tático Encapuzado
+                // Corpo Fino e ágil
+                ctx.fillStyle = '#12121a';
+                ctx.beginPath(); ctx.moveTo(this.x, this.y - this.radius - 10); ctx.lineTo(this.x + this.radius, this.y + this.radius); ctx.lineTo(this.x - this.radius, this.y + this.radius); ctx.fill();
+                // Lenço no pescoço esvoaçante
+                ctx.fillStyle = '#333';
+                ctx.fillRect(this.x - this.radius*.7, this.y - 15, this.radius*1.4, Math.sin(this.bobbing * 10) * 5 + 35);
+                // Capuz Rente ao Rosto
+                ctx.fillStyle = '#0a0a0f'; ctx.beginPath(); ctx.arc(this.x, this.y - 20, 16, 0, Math.PI*2); ctx.fill();
+                // Olhos Triangulares Roxos
+                ctx.fillStyle = this.color; ctx.shadowBlur = 15; ctx.shadowColor = this.color;
+                ctx.beginPath(); ctx.moveTo(this.x - 14, this.y - 25); ctx.lineTo(this.x - 2, this.y - 20); ctx.lineTo(this.x - 10, this.y - 18); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x + 14, this.y - 25); ctx.lineTo(this.x + 2, this.y - 20); ctx.lineTo(this.x + 10, this.y - 18); ctx.fill();
+                // Adaga na mão
+                ctx.fillStyle = '#888';
+                ctx.beginPath(); ctx.moveTo(this.x + this.radius, this.y + 10); ctx.lineTo(this.x + this.radius + 15, this.y - 15); ctx.lineTo(this.x + this.radius + 5, this.y + 10); ctx.fill();
                 break;
 
             case 'golem':
-                // Golem de Cristal de Gelo (Polígonos pontiagudos)
-                ctx.fillStyle = '#008b8b';
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y - this.radius - 20); // Spike head
-                ctx.lineTo(this.x + this.radius, this.y - 10); // Right shoulder
-                ctx.lineTo(this.x + this.radius + 15, this.y + this.radius); // Right arm
-                ctx.lineTo(this.x + this.radius / 2, this.y + this.radius);
-                ctx.lineTo(this.x - this.radius / 2, this.y + this.radius);
-                ctx.lineTo(this.x - this.radius - 15, this.y + this.radius); // Left arm
-                ctx.lineTo(this.x - this.radius, this.y - 10); // Left shoulder
-                ctx.closePath();
-                ctx.fill();
-                ctx.strokeStyle = this.color; ctx.lineWidth = 3; ctx.stroke();
-                // Olho/Núcleo cristalino
-                ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 20; ctx.shadowColor = '#00ced1';
-                ctx.beginPath(); ctx.arc(this.x, this.y - 5, 12, 0, Math.PI*2); ctx.fill();
+                // Golem Congelado / Diamante Rígido
+                ctx.fillStyle = '#1f456e'; // Cristal profundo
+                // Tronco em forma de Losango
+                ctx.beginPath(); ctx.moveTo(this.x, this.y - this.radius - 30); ctx.lineTo(this.x + this.radius, this.y); ctx.lineTo(this.x, this.y + this.radius + 10); ctx.lineTo(this.x - this.radius, this.y);  ctx.fill();
+                // Braços Flutuantes Cristalinos
+                ctx.fillStyle = '#4682b4';
+                ctx.beginPath(); ctx.moveTo(this.x - this.radius - 10, this.y - 20); ctx.lineTo(this.x - this.radius - 30, this.y); ctx.lineTo(this.x - this.radius - 10, this.y + 20); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x + this.radius + 10, this.y - 20); ctx.lineTo(this.x + this.radius + 30, this.y); ctx.lineTo(this.x + this.radius + 10, this.y + 20); ctx.fill();
+                // Contornos brilhantes
+                ctx.strokeStyle = this.color; ctx.lineWidth = 2; ctx.stroke();
+                // Núcleo de Vida
+                ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 25; ctx.shadowColor = '#00ffff';
+                ctx.beginPath(); ctx.moveTo(this.x, this.y - 10); ctx.lineTo(this.x + 10, this.y); ctx.lineTo(this.x, this.y + 10); ctx.lineTo(this.x - 10, this.y); ctx.fill();
                 break;
 
             case 'warlord':
-                // Senhor das Cinzas (Capa de magma e armadura brutal)
-                ctx.fillStyle = '#3d0c02';
+                // Gigante de Lava e Rocha
+                // Corpo Pedregoso
+                ctx.fillStyle = '#2b1007';
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#111'; // Placas brutais
-                ctx.fillRect(this.x - this.radius, this.y - 10, this.radius*2, 20);
-                // Coroa de fogo
-                ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.moveTo(this.x - 20, this.y - this.radius); ctx.lineTo(this.x - 30, this.y - this.radius - 25); ctx.lineTo(this.x - 10, this.y - this.radius); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(this.x, this.y - this.radius); ctx.lineTo(this.x, this.y - this.radius - 35); ctx.lineTo(this.x + 10, this.y - this.radius); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(this.x + 20, this.y - this.radius); ctx.lineTo(this.x + 30, this.y - this.radius - 25); ctx.lineTo(this.x + 10, this.y - this.radius); ctx.fill();
-                // Fogo saindo do peito (Núcleo ígneo)
-                ctx.fillStyle = '#ffcc00'; ctx.shadowBlur = 20; ctx.shadowColor = '#ff4500';
-                ctx.beginPath(); ctx.arc(this.x, this.y + 15, 15, 0, Math.PI*2); ctx.fill();
+                // Placas de rocha no peito
+                ctx.fillStyle = '#111';
+                ctx.fillRect(this.x - this.radius + 5, this.y - 15, this.radius*2 - 10, 30);
+                // Coroa forjada
+                ctx.fillStyle = '#542610';
+                ctx.beginPath(); ctx.moveTo(this.x - 25, this.y - this.radius + 5); ctx.lineTo(this.x - 30, this.y - this.radius - 20); ctx.lineTo(this.x - 10, this.y - this.radius); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x, this.y - this.radius + 5); ctx.lineTo(this.x, this.y - this.radius - 30); ctx.lineTo(this.x + 10, this.y - this.radius); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x + 25, this.y - this.radius + 5); ctx.lineTo(this.x + 30, this.y - this.radius - 20); ctx.lineTo(this.x + 10, this.y - this.radius); ctx.fill();
+                // Rosto de Fornalha (boca abrindo com magma)
+                ctx.fillStyle = '#000'; ctx.fillRect(this.x - 15, this.y - this.radius + 15, 30, 20);
+                ctx.fillStyle = '#ff8c00'; ctx.shadowBlur = 20; ctx.shadowColor = '#ff4500';
+                ctx.fillRect(this.x - 12, this.y - this.radius + 18, 24, 14); // Magma glow
                 break;
 
             case 'priestess':
-                // Silhouette flutuante e auras violetas
-                ctx.fillStyle = '#1c0a2b';
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y - this.radius);
-                // Vestido flutuante
-                ctx.lineTo(this.x + this.radius, this.y + this.radius * 1.5);
-                ctx.lineTo(this.x - this.radius, this.y + this.radius * 1.5);
-                ctx.closePath();
-                ctx.fill();
-                // Halo de vazio
-                ctx.strokeStyle = this.color; ctx.lineWidth = 5; ctx.shadowBlur = 20; ctx.shadowColor = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y - this.radius, 25, 0, Math.PI*2); ctx.stroke();
-                // Buraco negro no lugar da face
-                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(this.x, this.y - this.radius + 10, 10, 0, Math.PI*2); ctx.fill();
+                // Sacerdotisa sem rosto, etérea e fantasmagórica
+                // Véu Superior
+                ctx.fillStyle = '#220b2e';
+                ctx.beginPath(); ctx.arc(this.x, this.y - 25, 18, Math.PI, 0); ctx.fill();
+                // Vestido rasgado que dissolve no chão
+                ctx.beginPath(); ctx.moveTo(this.x - 18, this.y - 25);
+                ctx.lineTo(this.x - this.radius - 5, this.y + this.radius * 1.5);
+                // Bordas irregulares do tecido
+                for(let i=1; i<=5; i++) {
+                    ctx.lineTo(this.x - this.radius - 5 + (this.radius*2.5)*(i/5), this.y + this.radius*1.5 - (i%2)*15);
+                }
+                ctx.lineTo(this.x + 18, this.y - 25); ctx.fill();
+                // Halo Gigante Dourado e Roxo nas costas
+                ctx.strokeStyle = '#daa520'; ctx.lineWidth = 4; ctx.shadowBlur = 30; ctx.shadowColor = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y - 25, 35, 0, Math.PI*2); ctx.stroke();
+                // O buraco onde deveria estar a face
+                ctx.fillStyle = '#000'; ctx.shadowBlur = 0; ctx.beginPath(); ctx.arc(this.x, this.y - 20, 10, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y - 20, 2, 0, Math.PI*2); ctx.fill();
                 break;
 
             case 'dragon':
-                // DRAGÃO (Chefe Final Gigante)
+                // DRAGÃO DETALHADO Gigante
+                ctx.fillStyle = '#3d0a0a'; // Vermelho muito escuro
+                const bob = Math.sin(this.bobbing*2);
+                
+                // Cauda grossa
+                ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.quadraticCurveTo(this.x + 80, this.y + 60 + bob*10, this.x + 120, this.y + 40); ctx.lineTo(this.x, this.y+20); ctx.fill();
+                
+                // Asas de Morcego gigantes acopladas as costas
+                ctx.fillStyle = '#200505';
+                // Asa Esquerda
+                ctx.beginPath(); ctx.moveTo(this.x - 40, this.y - 10);
+                ctx.quadraticCurveTo(this.x - 120, this.y - 100 + bob*40, this.x - 180, this.y - 40 + bob*40);
+                ctx.quadraticCurveTo(this.x - 100, this.y, this.x - 40, this.y + 40); ctx.fill();
+                // Esqueleto da asa esq
+                ctx.strokeStyle = '#111'; ctx.lineWidth = 3; ctx.moveTo(this.x - 40, this.y - 10); ctx.lineTo(this.x - 180, this.y - 40 + bob*40); ctx.stroke();
+                
+                // Asa Direita
+                ctx.beginPath(); ctx.moveTo(this.x + 40, this.y - 10);
+                ctx.quadraticCurveTo(this.x + 120, this.y - 100 + bob*40, this.x + 180, this.y - 40 + bob*40);
+                ctx.quadraticCurveTo(this.x + 100, this.y, this.x + 40, this.y + 40); ctx.fill();
+                // Esqueleto asa dir
+                ctx.moveTo(this.x + 40, this.y - 10); ctx.lineTo(this.x + 180, this.y - 40 + bob*40); ctx.stroke();
+
+                // Corpo/Peitoral maciço com escamas
                 ctx.fillStyle = '#5c1010';
-                // Corpo maciço
-                ctx.beginPath();
-                ctx.ellipse(this.x, this.y + 20, this.radius, this.radius * 0.7, 0, 0, Math.PI*2);
-                ctx.fill();
-                // Asas (fechadas/abertas baseado no bobbing)
-                ctx.fillStyle = '#3a0909';
-                ctx.beginPath();
-                ctx.moveTo(this.x - 30, this.y);
-                ctx.lineTo(this.x - this.radius - 50, this.y - 80 + Math.sin(this.bobbing*2)*20);
-                ctx.lineTo(this.x - this.radius - 10, this.y + 30);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(this.x + 30, this.y);
-                ctx.lineTo(this.x + this.radius + 50, this.y - 80 + Math.sin(this.bobbing*2)*20);
-                ctx.lineTo(this.x + this.radius + 10, this.y + 30);
-                ctx.fill();
+                ctx.beginPath(); ctx.ellipse(this.x, this.y + 10, this.radius, this.radius * 0.8, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#3a0909'; // Sombreamento da barriga
+                ctx.beginPath(); ctx.ellipse(this.x, this.y + 25, this.radius * 0.8, this.radius * 0.4, 0, 0, Math.PI*2); ctx.fill();
+                
+                // Pescoço longo e Cabeça
+                ctx.fillStyle = '#5c1010';
+                ctx.beginPath(); ctx.moveTo(this.x - 15, this.y); ctx.lineTo(this.x - 20, this.y - 70); ctx.lineTo(this.x + 20, this.y - 70); ctx.lineTo(this.x + 15, this.y); ctx.fill();
+                // Chifres principais
+                ctx.fillStyle = '#111';
+                ctx.beginPath(); ctx.moveTo(this.x - 15, this.y - 70); ctx.lineTo(this.x - 40, this.y - 100); ctx.lineTo(this.x, this.y - 75); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x + 15, this.y - 70); ctx.lineTo(this.x + 40, this.y - 100); ctx.lineTo(this.x, this.y - 75); ctx.fill();
                 // Cabeça
-                ctx.fillStyle = '#7a1515';
-                ctx.beginPath(); ctx.rect(this.x - 30, this.y - 60, 60, 70); ctx.fill();
-                // Mandíbula/Focinho
+                ctx.fillStyle = '#4a0c0c';
+                ctx.fillRect(this.x - 25, this.y - 80, 50, 40);
+                // Focinho Alongado
                 ctx.fillStyle = '#5c1010';
-                ctx.fillRect(this.x - 20, this.y - 10, 40, 30);
-                // Olhos dourados
-                ctx.fillStyle = '#ffcc00'; ctx.shadowBlur = 10; ctx.shadowColor = '#ffcc00';
-                ctx.beginPath(); ctx.ellipse(this.x - 15, this.y - 40, 8, 4, -0.3, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.ellipse(this.x + 15, this.y - 40, 8, 4, 0.3, 0, Math.PI*2); ctx.fill();
+                ctx.fillRect(this.x - 15, this.y - 40, 30, 30);
+                // Olhos de Fera (Amarelos Brilhantes)
+                ctx.fillStyle = '#ffcc00'; ctx.shadowBlur = 15; ctx.shadowColor = '#ffcc00';
+                ctx.beginPath(); ctx.moveTo(this.x - 22, this.y - 65); ctx.lineTo(this.x - 10, this.y - 60); ctx.lineTo(this.x - 16, this.y - 55); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x + 22, this.y - 65); ctx.lineTo(this.x + 10, this.y - 60); ctx.lineTo(this.x + 16, this.y - 55); ctx.fill();
                 break;
         }
 
