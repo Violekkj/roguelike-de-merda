@@ -95,8 +95,8 @@ function handleCombat() {
     }
 
     // Arco (Botão Dir)
-    if (mouse.rightClick && player.stamina >= player.bowCost && !player.isAttacking) {
-        player.stamina -= player.bowCost;
+    if (mouse.rightClick && player.mana >= player.bowCost && !player.isAttacking) {
+        player.mana -= player.bowCost;
         player.isAttacking = true;
         player.attackType = 'bow';
 
@@ -258,12 +258,28 @@ function renderBackground() {
 
 // Efeitos Visuais
 let particles = [];
-function createHitEffect(x, y, color) {
-    // Para ataques físicos da espada, vamos fazer parecer faíscas ou sangue
-    const isBlood = color === '#fff' ? false : true; 
-    const pColor = isBlood ? '#8b0000' : '#ffcc00'; // Vermelho sangue ou Amarelo faísca
+function createHitEffect(x, y, color, impactType) {
+    let pColor = color; // Cor por default (espada/flecha)
+
+    // Se houver um tipo específico de impacto (Mágicas dos bosses)
+    if (impactType) {
+        switch(impactType) {
+            case 'poison': pColor = '#32cd32'; break;
+            case 'ice': pColor = '#00ffff'; break;
+            case 'fireball':
+            case 'meteor': pColor = '#ff4500'; break;
+            case 'bone': pColor = '#eeeeee'; break;
+            case 'shadow_burst':
+            case 'void': pColor = '#4b0082'; break;
+            case 'blood_orb': pColor = '#8b0000'; break;
+        }
+    } else {
+        // Impactos físicos padrões (Sangue do boss ou faísca da flecha)
+        const isBlood = color === '#fff' ? false : true; 
+        pColor = isBlood ? '#8b0000' : '#ffcc00';
+    }
     
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 15; i++) {
         particles.push({
             x: x,
             y: y,

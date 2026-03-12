@@ -13,38 +13,72 @@ class Dungeon {
             return;
         }
 
-        const bossHealth = 150 + (this.currentRoom * 80);
-        const bossName = this.getBossName(this.currentRoom);
-        const bossColor = this.getBossColor(this.currentRoom);
-
-        // Atribuir TEMA de boss baseado na sala
-        let bossTheme = 'warlock';
-        if (this.currentRoom >= 7) bossTheme = 'beast';
-        else if (this.currentRoom >= 4) bossTheme = 'knight';
-
-        this.currentBoss = new Boss(bossName, bossHealth, bossColor, bossTheme);
+        const config = this.getBossConfig(this.currentRoom);
+        this.currentBoss = new Boss(config);
         this.gameState = 'playing';
 
         document.getElementById('room-number').innerText = `${this.currentRoom} / ${this.totalRooms}`;
     }
 
-    getBossName(room) {
-        const names = [
-            "Aprendiz Sombrio", "Cabalista de Fogo", "Senhor Necromante",
-            "Cavaleiro Decaído", "Vanguarda de Ferro", "Lorde Comandante",
-            "Lobo Terrível", "Mantícora Espinhosa", "Wyvern das Profundezas",
-            "DRAGÃO ANTIGRAVITY"
-        ];
-        return names[room - 1] || `Aberraçao ${room}`;
-    }
-
-    getBossColor(room) {
-        const colors = [
-            '#ff4d4d', '#ff8c00', '#9932cc', '#708090',
-            '#4682b4', '#d4af37', '#8b4513', '#556b2f',
-            '#2f4f4f', '#8b0000'
-        ];
-        return colors[(room - 1) % colors.length];
+    getBossConfig(room) {
+        // Configuramos cada um dos 10 bosses individualmente aqui
+        switch(room) {
+            case 1: return {
+                name: "Aprendiz Sombrio", health: 150, color: '#ff4d4d',
+                radius: 40, speed: 2.0, moveType: 'wander',
+                visualTheme: 'apprentice', patterns: ['slow_blood_orb'], cooldown: 2000
+            };
+            case 2: return {
+                name: "Esqueleto Brucutu", health: 250, color: '#e0e0e0',
+                radius: 55, speed: 2.8, moveType: 'chase',
+                visualTheme: 'skeleton', patterns: ['bone_throw', 'dash_strike'], cooldown: 1800
+            };
+            case 3: return {
+                name: "Cultista das Chamas", health: 350, color: '#ff8c00',
+                radius: 45, speed: 2.2, moveType: 'wander',
+                visualTheme: 'cultist', patterns: ['fireball_spread', 'fire_nova'], cooldown: 1500
+            };
+            case 4: return {
+                name: "Cavaleiro Caído", health: 500, color: '#708090',
+                radius: 50, speed: 3.0, moveType: 'chase',
+                visualTheme: 'fallen_knight', patterns: ['sword_wave', 'heavy_slam'], cooldown: 1600
+            };
+            case 5: return {
+                name: "Slime Tóxico", health: 650, color: '#32cd32',
+                radius: 80, speed: 1.5, moveType: 'wander',
+                visualTheme: 'slime', patterns: ['poison_spit', 'slime_split'], cooldown: 1400
+            };
+            case 6: return {
+                name: "Assassino das Sombras", health: 400, color: '#4b0082',
+                radius: 35, speed: 4.5, moveType: 'patrol',
+                visualTheme: 'assassin', patterns: ['dagger_fan', 'shadow_step'], cooldown: 1000
+            };
+            case 7: return {
+                name: "Golem de Cristal", health: 900, color: '#00ced1',
+                radius: 70, speed: 1.2, moveType: 'chase',
+                visualTheme: 'golem', patterns: ['ice_spike', 'frost_nova'], cooldown: 2200
+            };
+            case 8: return {
+                name: "Senhor das Cinzas", health: 750, color: '#b22222',
+                radius: 65, speed: 2.5, moveType: 'chase',
+                visualTheme: 'warlord', patterns: ['fire_wave', 'meteor_strike'], cooldown: 1500
+            };
+            case 9: return {
+                name: "Sacerdotisa do Vazio", health: 600, color: '#800080',
+                radius: 40, speed: 3.5, moveType: 'teleport',
+                visualTheme: 'priestess', patterns: ['void_rings', 'teleport_blast'], cooldown: 1200
+            };
+            case 10: return {
+                name: "DRAGÃO ANTIGRAVITY", health: 1500, color: '#ff0000',
+                radius: 100, speed: 2.0, moveType: 'hover',
+                visualTheme: 'dragon', patterns: ['flame_breath', 'tail_whip', 'meteor_shower'], cooldown: 1800
+            };
+            default: return {
+                name: `Aberraçao ${room}`, health: 1000, color: '#fff',
+                radius: 50, speed: 2.5, moveType: 'wander',
+                visualTheme: 'apprentice', patterns: ['slow_blood_orb'], cooldown: 2000
+            };
+        }
     }
 
     update(player) {

@@ -83,7 +83,7 @@ body {
     text-shadow: 1px 1px 2px #000;
 }
 
-.hp-bar-container, .stamina-bar-container {
+.hp-bar-container, .mana-bar-container {
     height: 8px;
     background: #111;
     border: 1px solid #000;
@@ -99,7 +99,7 @@ body {
     transition: width 0.3s ease;
 }
 
-.stamina-bar {
+.mana-bar {
     height: 100%;
     width: 100%;
     background: linear-gradient(90deg, #0d47a1, var(--stamina-color));

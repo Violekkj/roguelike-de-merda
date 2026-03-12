@@ -9,9 +9,9 @@ class Player {
         this.maxHealth = 100;
         this.health = 100;
 
-        this.maxStamina = 100;
-        this.stamina = 100;
-        this.staminaRegen = 0.5;
+        this.maxMana = 100;
+        this.mana = 100;
+        this.manaRegen = 0.5;
         this.bowCost = 20;
 
         this.isDashing = false;
@@ -31,9 +31,9 @@ class Player {
     }
 
     update(keys, mouse, deltaTime, canvasWidth, canvasHeight) {
-        // Regênerar Stamina
-        if (this.stamina < this.maxStamina) {
-            this.stamina = Math.min(this.maxStamina, this.stamina + this.staminaRegen);
+        // Regênerar Mana
+        if (this.mana < this.maxMana) {
+            this.mana = Math.min(this.maxMana, this.mana + this.manaRegen);
         }
 
         // Atualizar direção baseada no movimento (WASD)
@@ -107,10 +107,10 @@ class Player {
 
     updateUI() {
         const hpBar = document.getElementById('player-hp-bar');
-        const staminaBar = document.getElementById('player-stamina-bar');
+        const manaBar = document.getElementById('player-mana-bar');
 
         if (hpBar) hpBar.style.width = `${(this.health / this.maxHealth) * 100}%`;
-        if (staminaBar) staminaBar.style.width = `${(this.stamina / this.maxStamina) * 100}%`;
+        if (manaBar) manaBar.style.width = `${(this.mana / this.maxMana) * 100}%`;
     }
 
     draw(ctx, mouse) {
@@ -265,7 +265,7 @@ class Player {
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(10 + Math.cos(-Math.PI / 1.7) * 35, Math.sin(-Math.PI / 1.7) * 35);
-            ctx.lineTo(-8, 0); // Ponto de puxada profunda (Gasta stamina!)
+            ctx.lineTo(-8, 0); // Ponto de puxada profunda (Gasta mana!)
             ctx.lineTo(10 + Math.cos(Math.PI / 1.7) * 35, Math.sin(Math.PI / 1.7) * 35);
             ctx.stroke();
             
