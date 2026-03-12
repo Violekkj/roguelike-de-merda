@@ -618,17 +618,15 @@ function updateProjectiles() {
 
 function drawProjectiles() {
     playerProjectiles.forEach(p => {
-        // Trail luminoso da flecha
+        // Trail sutil da flecha (marrom/cinza, não neon)
         if (p.trail) {
             p.trail.forEach(t => {
                 if (t.life > 0) {
                     ctx.save();
-                    ctx.globalAlpha = t.life * 0.4;
-                    ctx.fillStyle = '#4dffb5';
-                    ctx.shadowBlur = 8;
-                    ctx.shadowColor = '#4dffb5';
+                    ctx.globalAlpha = t.life * 0.3;
+                    ctx.fillStyle = '#8d6e63';
                     ctx.beginPath();
-                    ctx.arc(t.x, t.y, 3, 0, Math.PI * 2);
+                    ctx.arc(t.x, t.y, 2, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.restore();
                 }
@@ -638,45 +636,34 @@ function drawProjectiles() {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.angle);
+        ctx.shadowBlur = 0;
 
-        // Aura de energia
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = '#4dffb5';
+        // Haste de madeira
+        ctx.fillStyle = '#8d6e63';
+        ctx.fillRect(-12, -1, 24, 2);
 
-        // Haste de madeira (Gradiente)
-        const shaftGrad = ctx.createLinearGradient(-12, 0, 12, 0);
-        shaftGrad.addColorStop(0, '#5d4037');
-        shaftGrad.addColorStop(1, '#8d6e63');
-        ctx.fillStyle = shaftGrad;
-        ctx.fillRect(-12, -1.5, 24, 3);
-
-        // Ponta afiada brilhante
-        ctx.fillStyle = '#e0e0e0';
+        // Ponta de ferro
+        ctx.fillStyle = '#888';
         ctx.beginPath();
         ctx.moveTo(12, -3);
         ctx.lineTo(20, 0);
         ctx.lineTo(12, 3);
         ctx.fill();
-        // Brilho na ponta
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.moveTo(14, -1);
-        ctx.lineTo(18, 0);
-        ctx.lineTo(14, 1);
-        ctx.fill();
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
 
-        // Penas (Fletching) coloridas
-        ctx.fillStyle = '#ff4444';
+        // Penas (Fletching) - branco/cinza natural
+        ctx.fillStyle = '#ddd';
         ctx.beginPath();
-        ctx.moveTo(-12, -1.5); ctx.lineTo(-17, -5); ctx.lineTo(-8, -1.5); ctx.fill();
+        ctx.moveTo(-12, -1); ctx.lineTo(-16, -4); ctx.lineTo(-8, -1); ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(-12, 1.5); ctx.lineTo(-17, 5); ctx.lineTo(-8, 1.5); ctx.fill();
-        // Segunda camada
-        ctx.fillStyle = '#ffcc00';
+        ctx.moveTo(-12, 1); ctx.lineTo(-16, 4); ctx.lineTo(-8, 1); ctx.fill();
+        ctx.fillStyle = '#bbb';
         ctx.beginPath();
-        ctx.moveTo(-10, -1.5); ctx.lineTo(-13, -3.5); ctx.lineTo(-6, -1.5); ctx.fill();
+        ctx.moveTo(-10, -1); ctx.lineTo(-13, -3); ctx.lineTo(-7, -1); ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(-10, 1.5); ctx.lineTo(-13, 3.5); ctx.lineTo(-6, 1.5); ctx.fill();
+        ctx.moveTo(-10, 1); ctx.lineTo(-13, 3); ctx.lineTo(-7, 1); ctx.fill();
 
         ctx.restore();
     });

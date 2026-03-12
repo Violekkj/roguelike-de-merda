@@ -225,163 +225,143 @@ class Player {
             // Rotação do swing animado
             ctx.rotate(this.swordSwingAngle);
 
-            // ===== ESPADA FLAMEJANTE MEDIEVAL =====
-            // Brilho épico da lâmina
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#ff6600';
+            // ===== ESPADA LONGA MEDIEVAL =====
+            ctx.shadowBlur = 0;
 
-            // Empunhadura (Couro trabalhado)
-            ctx.fillStyle = '#2d1b10';
-            ctx.fillRect(5, -4, 18, 8);
-            // Faixas de couro
-            ctx.fillStyle = '#1a0f08';
-            ctx.fillRect(8, -4, 3, 8);
-            ctx.fillRect(15, -4, 3, 8);
-            // Pomo ornamental
-            ctx.fillStyle = '#d4af37';
-            ctx.beginPath(); ctx.arc(4, 0, 5, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#8b0000';
-            ctx.beginPath(); ctx.arc(4, 0, 2, 0, Math.PI * 2); ctx.fill();
+            // Pomo (Pommel) - Esfera de ferro
+            ctx.fillStyle = '#555';
+            ctx.beginPath(); ctx.arc(3, 0, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
+            ctx.stroke();
 
-            // Guarda (Crossguard) - Ouro e ferro
-            ctx.fillStyle = '#d4af37';
-            ctx.fillRect(22, -18, 5, 36);
-            // Detalhes na guarda
-            ctx.fillStyle = '#b8860b';
-            ctx.beginPath();
-            ctx.moveTo(22, -18); ctx.lineTo(18, -22); ctx.lineTo(27, -18); ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(22, 18); ctx.lineTo(18, 22); ctx.lineTo(27, 18); ctx.fill();
+            // Empunhadura (Grip) - Couro marrom enrolado
+            ctx.fillStyle = '#3e2723';
+            ctx.fillRect(6, -3, 16, 6);
+            // Tiras de couro
+            ctx.strokeStyle = '#2a1a0e';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(8 + i * 4, -3);
+                ctx.lineTo(8 + i * 4, 3);
+                ctx.stroke();
+            }
 
-            // Lâmina principal (Aço polido com gradiente)
-            const bladeGrad = ctx.createLinearGradient(27, 0, 100, 0);
-            bladeGrad.addColorStop(0, '#c0c0c0');
-            bladeGrad.addColorStop(0.5, '#e8e8e8');
-            bladeGrad.addColorStop(1, '#ffffff');
+            // Guarda (Crossguard) - Ferro simples, fino
+            ctx.fillStyle = '#666';
+            ctx.fillRect(21, -12, 4, 24);
+            // Pontas da guarda levemente arredondadas
+            ctx.beginPath(); ctx.arc(23, -12, 2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(23, 12, 2, 0, Math.PI * 2); ctx.fill();
+
+            // Lâmina reta e longa (Longsword)
+            // Fio primário - aço cinza
+            const bladeGrad = ctx.createLinearGradient(25, -4, 25, 4);
+            bladeGrad.addColorStop(0, '#a8a8a8');
+            bladeGrad.addColorStop(0.3, '#d0d0d0');
+            bladeGrad.addColorStop(0.5, '#e0e0e0');
+            bladeGrad.addColorStop(0.7, '#d0d0d0');
+            bladeGrad.addColorStop(1, '#a8a8a8');
             ctx.fillStyle = bladeGrad;
             ctx.beginPath();
-            ctx.moveTo(27, -6);
-            ctx.lineTo(85, -4);
-            ctx.lineTo(100, 0); // Ponta afiada
-            ctx.lineTo(85, 4);
-            ctx.lineTo(27, 6);
+            ctx.moveTo(25, -4);     // Base superior
+            ctx.lineTo(90, -3);     // Lâmina reta superior
+            ctx.lineTo(100, 0);     // Ponta
+            ctx.lineTo(90, 3);      // Lâmina reta inferior
+            ctx.lineTo(25, 4);      // Base inferior
             ctx.closePath();
             ctx.fill();
 
-            // Fio de corte central (Sangueira/Fuller brilhante)
-            ctx.fillStyle = 'rgba(212, 175, 55, 0.5)';
-            ctx.beginPath();
-            ctx.moveTo(30, -1.5);
-            ctx.lineTo(80, 0);
-            ctx.lineTo(30, 1.5);
-            ctx.fill();
-
-            // Borda cortante luminosa
-
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(27, -6); ctx.lineTo(100, 0); ctx.lineTo(27, 6);
+            // Borda da lâmina (contorno fino)
+            ctx.strokeStyle = '#777';
+            ctx.lineWidth = 0.5;
             ctx.stroke();
 
-            // ===== EFEITO DE CORTE (Arco de vento) =====
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = 'rgba(255, 200, 100, 0.6)';
-            ctx.strokeStyle = 'rgba(255, 220, 150, 0.5)';
-            ctx.lineWidth = 12;
+            // Sangueira (Fuller) - sulco central da lâmina
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(28, 0);
+            ctx.lineTo(82, 0);
+            ctx.stroke();
+
+            // Efeito de corte (arco sutil, NÃO neon)
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.25)';
+            ctx.lineWidth = 6;
             ctx.lineCap = 'round';
             ctx.beginPath();
-            ctx.arc(0, 0, 90, -0.8, 0.8);
-            ctx.stroke();
-
-            // Trail de partículas do corte
-            ctx.strokeStyle = 'rgba(255, 150, 50, 0.3)';
-            ctx.lineWidth = 6;
-            ctx.beginPath();
-            ctx.arc(0, 0, 95, -0.5, 0.5);
+            ctx.arc(0, 0, 85, -0.6, 0.6);
             ctx.stroke();
 
         } else if (this.attackType === 'bow') {
-            // ===== ARCO ÉLFICO ORNAMENTAL =====
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = '#4dffb5';
+            // ===== ARCO LONGO DE MADEIRA =====
+            ctx.shadowBlur = 0;
 
-            // Corpo do Arco (Madeira dourada entalhada)
+            // Corpo do Arco (Madeira escura - teixo/yew)
             const bowGrad = ctx.createLinearGradient(10, -40, 10, 40);
-            bowGrad.addColorStop(0, '#8B6914');
-            bowGrad.addColorStop(0.5, '#DAA520');
-            bowGrad.addColorStop(1, '#8B6914');
+            bowGrad.addColorStop(0, '#4a3728');
+            bowGrad.addColorStop(0.3, '#6d4c3d');
+            bowGrad.addColorStop(0.5, '#7b5b4a');
+            bowGrad.addColorStop(0.7, '#6d4c3d');
+            bowGrad.addColorStop(1, '#4a3728');
             ctx.strokeStyle = bowGrad;
-            ctx.lineWidth = 7;
+            ctx.lineWidth = 6;
             ctx.lineCap = 'round';
             ctx.beginPath();
-            ctx.arc(12, 0, 38, -Math.PI / 1.6, Math.PI / 1.6);
+            ctx.arc(12, 0, 36, -Math.PI / 1.7, Math.PI / 1.7);
             ctx.stroke();
 
-            // Detalhes gravados no arco (linhas decorativas)
-            ctx.strokeStyle = '#d4af37';
+            // Textura da madeira (veios)
+            ctx.strokeStyle = '#5d4037';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(12, 0, 34, -Math.PI / 2, Math.PI / 2);
+            ctx.stroke();
+
+            // Pontas do arco (nocks - entalhes para a corda)
+            const topX = 12 + Math.cos(-Math.PI / 1.7) * 36;
+            const topY = Math.sin(-Math.PI / 1.7) * 36;
+            const botX = 12 + Math.cos(Math.PI / 1.7) * 36;
+            const botY = Math.sin(Math.PI / 1.7) * 36;
+            ctx.fillStyle = '#3e2723';
+            ctx.beginPath(); ctx.arc(topX, topY, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(botX, botY, 3, 0, Math.PI * 2); ctx.fill();
+
+            // Corda (Linho/cânhamo - cor natural)
+            ctx.strokeStyle = '#c4b59d';
             ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.arc(12, 0, 35, -Math.PI / 2, Math.PI / 2);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(12, 0, 41, -Math.PI / 2, Math.PI / 2);
-            ctx.stroke();
-
-            // Pontas do arco (ornamentos dourados)
-            const topX = 12 + Math.cos(-Math.PI / 1.6) * 38;
-            const topY = Math.sin(-Math.PI / 1.6) * 38;
-            const botX = 12 + Math.cos(Math.PI / 1.6) * 38;
-            const botY = Math.sin(Math.PI / 1.6) * 38;
-            ctx.fillStyle = '#d4af37';
-            ctx.beginPath(); ctx.arc(topX, topY, 4, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(botX, botY, 4, 0, Math.PI * 2); ctx.fill();
-
-            // Corda sendo puxada (brilho mágico)
-            ctx.strokeStyle = '#4dffb5';
-            ctx.lineWidth = 2;
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = '#4dffb5';
-            ctx.beginPath();
             ctx.moveTo(topX, topY);
-            ctx.lineTo(-10, 0); // Ponto de puxada profunda
+            ctx.lineTo(-8, 0); // Ponto puxado
             ctx.lineTo(botX, botY);
             ctx.stroke();
 
-            // Flecha posicionada (Premium)
-            // Haste de madeira com gradiente
-            const arrowGrad = ctx.createLinearGradient(-10, 0, 35, 0);
-            arrowGrad.addColorStop(0, '#5d4037');
-            arrowGrad.addColorStop(1, '#8d6e63');
-            ctx.fillStyle = arrowGrad;
-            ctx.fillRect(-10, -1.5, 45, 3);
+            // Flecha posicionada no arco
+            // Haste (madeira clara)
+            ctx.fillStyle = '#8d6e63';
+            ctx.fillRect(-8, -1, 42, 2);
 
-            // Ponta de aço brilhante
-            ctx.fillStyle = '#e0e0e0';
-            ctx.shadowBlur = 5;
-            ctx.shadowColor = '#fff';
+            // Ponta de ferro (triangular)
+            ctx.fillStyle = '#888';
             ctx.beginPath();
-            ctx.moveTo(35, -4); ctx.lineTo(45, 0); ctx.lineTo(35, 4);
+            ctx.moveTo(34, -3); ctx.lineTo(42, 0); ctx.lineTo(34, 3);
             ctx.fill();
-
-            // Penas (Fletching) com cor
-            ctx.fillStyle = '#ff4444';
-            ctx.beginPath();
-            ctx.moveTo(-10, -1.5); ctx.lineTo(-16, -6); ctx.lineTo(-6, -1.5); ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-10, 1.5); ctx.lineTo(-16, 6); ctx.lineTo(-6, 1.5); ctx.fill();
-            ctx.fillStyle = '#ffcc00';
-            ctx.beginPath();
-            ctx.moveTo(-8, -1.5); ctx.lineTo(-12, -4); ctx.lineTo(-4, -1.5); ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-8, 1.5); ctx.lineTo(-12, 4); ctx.lineTo(-4, 1.5); ctx.fill();
-
-            // Aura de energia ao redor da flecha
-            ctx.strokeStyle = 'rgba(77, 255, 181, 0.3)';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(-5, 0); ctx.lineTo(40, 0);
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 0.5;
             ctx.stroke();
+
+            // Penas (Fletching) - penas de ganso, cores naturais
+            ctx.fillStyle = '#ddd';
+            ctx.beginPath();
+            ctx.moveTo(-8, -1); ctx.lineTo(-14, -5); ctx.lineTo(-4, -1); ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-8, 1); ctx.lineTo(-14, 5); ctx.lineTo(-4, 1); ctx.fill();
+            // Pena central
+            ctx.fillStyle = '#bbb';
+            ctx.beginPath();
+            ctx.moveTo(-6, -1); ctx.lineTo(-10, -3); ctx.lineTo(-3, -1); ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-6, 1); ctx.lineTo(-10, 3); ctx.lineTo(-3, 1); ctx.fill();
         }
 
         ctx.restore();
