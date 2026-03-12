@@ -83,7 +83,7 @@ function handleCombat() {
         const angleToBoss = Math.atan2(dy, dx);
         const angleDiff = Math.abs(player.angle - angleToBoss);
 
-        if (dist < 100 && (angleDiff < 1 || angleDiff > Math.PI * 2 - 1)) {
+        if (dist < 130 && (angleDiff < 1.2 || angleDiff > Math.PI * 2 - 1.2)) {
             dungeon.currentBoss.takeDamage(15);
             createHitEffect(dungeon.currentBoss.x, dungeon.currentBoss.y, '#fff');
         }
@@ -172,10 +172,20 @@ function drawProjectiles() {
 }
 
 function renderBackground() {
-    // Grade futurista
-    ctx.strokeStyle = 'rgba(124, 77, 255, 0.05)';
-    ctx.lineWidth = 1;
-    const gridSize = 40;
+    // Piso de masmorra escuro
+    const bgGradient = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, 0,
+        canvas.width / 2, canvas.height / 2, canvas.width
+    );
+    bgGradient.addColorStop(0, '#2d2d2d'); // Pedra mais clara no centro
+    bgGradient.addColorStop(1, '#0f0f0f'); // Escuridão nas bordas
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Linhas de paralelepípedos/ladrilhos de pedra
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.lineWidth = 2;
+    const gridSize = 80;
     for (let x = 0; x < canvas.width; x += gridSize) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -188,19 +198,79 @@ function renderBackground() {
         ctx.lineTo(canvas.width, y);
         ctx.stroke();
     }
+
+    // Paredes da masmorra
+    const margin = 20;
+    ctx.strokeStyle = '#1a100a'; // Madeira escura/Pedra musgo
+    ctx.lineWidth = 15;
+    ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+
+    // Pilares e Tochas nos cantos
+    ctx.fillStyle = '#1c1c1c';
+    const pilarSize = 50;
+    const corners = [
+        [margin, margin],
+        [canvas.width - margin - pilarSize, margin],
+        [margin, canvas.height - margin - pilarSize],
+        [canvas.width - margin - pilarSize, canvas.height - margin - pilarSize]
+    ];
+
+    corners.forEach(([px, py]) => {
+        // Base de pedra
+        ctx.fillRect(px, py, pilarSize, pilarSize);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px + 4, py + 4, pilarSize - 8, pilarSize - 8);
+        
+        // Fogo da tocha (animação simples baseada no tempo)
+        const flicker = Math.random() * 5;
+        ctx.fillStyle = '#ff6600';
+        ctx.shadowBlur = 30 + flicker;
+        ctx.shadowColor = '#ff4500';
+        
+        ctx.beginPath();
+        ctx.arc(px + pilarSize / 2, py + pilarSize / 2, 8 + flicker/3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffcc00'; // Centro mais quente da chama
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(px + pilarSize / 2, py + pilarSize / 2, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    });
+
+    // Símbolo rúnico no centro da sala
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, 130, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(100, 100, 100, 0.2)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    
+    // Triangulo interno da runa
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, canvas.height / 2 - 110);
+    ctx.lineTo(canvas.width / 2 - 95, canvas.height / 2 + 55);
+    ctx.lineTo(canvas.width / 2 + 95, canvas.height / 2 + 55);
+    ctx.closePath();
+    ctx.stroke();
 }
 
 // Efeitos Visuais
 let particles = [];
 function createHitEffect(x, y, color) {
-    for (let i = 0; i < 8; i++) {
+    // Para ataques físicos da espada, vamos fazer parecer faíscas ou sangue
+    const isBlood = color === '#fff' ? false : true; 
+    const pColor = isBlood ? '#8b0000' : '#ffcc00'; // Vermelho sangue ou Amarelo faísca
+    
+    for (let i = 0; i < 12; i++) {
         particles.push({
             x: x,
             y: y,
-            vx: (Math.random() - 0.5) * 10,
-            vy: (Math.random() - 0.5) * 10,
-            radius: Math.random() * 3,
-            color: color || '#fff',
+            vx: (Math.random() - 0.5) * 12,
+            vy: (Math.random() - 0.5) * 12,
+            radius: Math.random() * 4,
+            color: pColor,
             life: 1.0
         });
     }

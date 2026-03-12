@@ -116,11 +116,15 @@ class Player {
     draw(ctx, mouse) {
         ctx.save();
 
-        // Efeito de trail se estiver dando dash
+        // Efeito de trail se estiver dando dash (poeira/sombra)
         if (this.isDashing) {
-            ctx.fillStyle = 'rgba(124, 77, 255, 0.3)';
+            ctx.fillStyle = 'rgba(50, 40, 30, 0.4)';
             ctx.beginPath();
-            ctx.arc(this.x - this.direction.x * 10, this.y - this.direction.y * 10, this.radius, 0, Math.PI * 2);
+            ctx.arc(this.x - this.direction.x * 12, this.y - this.direction.y * 12, this.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(this.x - this.direction.x * 24, this.y - this.direction.y * 24, this.radius * 0.8, 0, Math.PI * 2);
             ctx.fill();
         }
 
@@ -129,41 +133,58 @@ class Player {
             this.drawWeapon(ctx);
         }
 
-        // --- DESIGN DE ARMADURA DO PROTAGONISTA ---
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = this.isInvincible ? '#fff' : '#7c4dff';
+        // --- DESIGN DE CAVALEIRO MEDIEVAL ---
+        ctx.shadowBlur = this.isInvincible ? 15 : 5;
+        ctx.shadowColor = this.isInvincible ? '#fff' : '#000';
 
-        // Corpo Base (Armadura Peitoral)
-        ctx.fillStyle = '#2a2a3a';
+        // Capa esvoaçante (Vermelho escuro)
+        ctx.fillStyle = '#8b0000';
+        ctx.beginPath();
+        const capeAngle = this.angle + Math.PI;
+        ctx.arc(this.x + Math.cos(capeAngle) * 5, this.y + Math.sin(capeAngle) * 5, this.radius + 2, capeAngle - 1, capeAngle + 1);
+        ctx.fill();
+
+        // Corpo Base (Cota de Malha / Armadura de Couro por baixo)
+        ctx.fillStyle = '#404040';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Placas de Armadura (Visual de Roguelike Tech)
-        ctx.strokeStyle = '#7c4dff';
+        // Placas de Armadura Peitoral (Aço)
+        ctx.fillStyle = '#8c8c8c';
+        ctx.strokeStyle = '#333';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius - 4, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Ombreiras
-        ctx.fillStyle = '#3f3f5f';
-        const shoulderAngle = this.angle + Math.PI / 2;
-        ctx.beginPath();
-        ctx.ellipse(this.x + Math.cos(shoulderAngle) * 15, this.y + Math.sin(shoulderAngle) * 15, 8, 12, shoulderAngle, 0, Math.PI * 2);
-        ctx.ellipse(this.x - Math.cos(shoulderAngle) * 15, this.y - Math.sin(shoulderAngle) * 15, 8, 12, shoulderAngle, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.radius - 3, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // Capacete / Visor Neon
-        ctx.fillStyle = '#7c4dff';
-        ctx.shadowBlur = 10;
-        const visorWidth = 14;
-        const visorHeight = 4;
+        // Ombreiras (Espaldeiras de Aço Prateado)
+        ctx.fillStyle = '#a0a0a0';
+        const shoulderAngle = this.angle + Math.PI / 2;
+        ctx.beginPath();
+        ctx.ellipse(this.x + Math.cos(shoulderAngle) * 16, this.y + Math.sin(shoulderAngle) * 16, 9, 14, shoulderAngle, 0, Math.PI * 2);
+        ctx.ellipse(this.x - Math.cos(shoulderAngle) * 16, this.y - Math.sin(shoulderAngle) * 16, 9, 14, shoulderAngle, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Capacete (Elmo de Cavaleiro)
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
-        ctx.fillRect(5, -visorHeight / 2, visorWidth, visorHeight); // Visor frontal
+        
+        ctx.fillStyle = '#737373';
+        ctx.beginPath();
+        ctx.arc(0, 0, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Fenda do Elmo (Espaço para os olhos na escuridão)
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(4, -5, 8, 10);
+        ctx.fillStyle = '#8b0000'; // Olhos vermelhos brilhantes (Opcional, dá um ar dark fantasy)
+        ctx.fillRect(6, -2, 2, 4);
+        
         ctx.restore();
 
         ctx.restore();
@@ -175,77 +196,89 @@ class Player {
         ctx.rotate(this.angle);
 
         if (this.attackType === 'sword') {
-            // Desenho de uma Espada Real
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = '#fff';
+            // Desenho de uma Montante (Arma Medieval Pesada)
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = '#000';
 
-            // Empunhadura (Hilt)
-            ctx.fillStyle = '#4a2c1d'; // Madeira/Couro
+            // Empunhadura (Hilt) - Couro escuro
+            ctx.fillStyle = '#2d1b10';
             ctx.fillRect(5, -3, 15, 6);
+            ctx.fillStyle = '#1a1a1a'; // Pomo da espada
+            ctx.beginPath(); ctx.arc(5, 0, 4, 0, Math.PI*2); ctx.fill();
 
-            // Guarda da mão (Crossguard)
-            ctx.fillStyle = '#ffd700'; // Dourado
-            ctx.fillRect(18, -12, 5, 24);
-
-            // Lâmina (Blade)
-            ctx.fillStyle = '#e0e0e0'; // Metal
+            // Guarda (Crossguard) - Ferro batido
+            ctx.fillStyle = '#404040';
+            ctx.fillRect(18, -14, 4, 28);
             ctx.beginPath();
-            ctx.moveTo(23, -6);
-            ctx.lineTo(80, -2);
-            ctx.lineTo(85, 0); // Ponta
-            ctx.lineTo(80, 2);
-            ctx.lineTo(23, 6);
+            ctx.moveTo(18, -14); ctx.lineTo(14, -18); ctx.lineTo(22, -14); ctx.fill();
+            ctx.moveTo(18, 14); ctx.lineTo(14, 18); ctx.lineTo(22, 14); ctx.fill();
+
+            // Lâmina (Blade) - Aço sujo/desgastado
+            ctx.fillStyle = '#b3b3b3';
+            ctx.beginPath();
+            ctx.moveTo(22, -5);
+            ctx.lineTo(85, -3);
+            ctx.lineTo(95, 0); // Ponta
+            ctx.lineTo(85, 3);
+            ctx.lineTo(22, 5);
             ctx.closePath();
             ctx.fill();
 
-            // Brilho no centro da lâmina
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 1;
+            // Fio de corte central (Sangueira)
+            ctx.fillStyle = '#333';
             ctx.beginPath();
-            ctx.moveTo(25, 0);
+            ctx.moveTo(22, -1);
             ctx.lineTo(75, 0);
-            ctx.stroke();
+            ctx.lineTo(22, 1);
+            ctx.fill();
 
-            // Efeito de movimento (Slash Arc)
+            // Efeito de movimento físico (Corte veloz de vento/metal)
             ctx.beginPath();
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 8;
-            ctx.arc(0, 0, 70, -0.6, 0.6);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            ctx.arc(0, 0, 80, -0.7, 0.7);
             ctx.stroke();
 
         } else if (this.attackType === 'bow') {
-            // Desenho de um Arco Detalhado
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = '#4dffb5';
+            // Desenho de um Arco Longo de Madeira Escura
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = '#000';
 
-            // Corpo do arco (Estrutura curva)
-            ctx.strokeStyle = '#1a4a35'; // Base escura
-            ctx.lineWidth = 5;
+            // Corpo do arco (Madeira nobre/Yew)
+            ctx.strokeStyle = '#3e2723';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
             ctx.beginPath();
-            ctx.arc(10, 0, 30, -Math.PI / 1.8, Math.PI / 1.8);
+            ctx.arc(10, 0, 35, -Math.PI / 1.7, Math.PI / 1.7);
             ctx.stroke();
-
-            ctx.strokeStyle = '#4dffb5'; // Brilho neon
+            
+            // Textura da madeira
+            ctx.strokeStyle = '#5d4037';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(10, 0, 30, -Math.PI / 1.8, Math.PI / 1.8);
+            ctx.arc(10, 0, 35, -Math.PI / 1.7, Math.PI / 1.7);
             ctx.stroke();
-
-            // Extremidades reforçadas
-            ctx.fillStyle = '#ffd700';
-            ctx.beginPath();
-            ctx.arc(10 + Math.cos(-Math.PI / 1.8) * 30, Math.sin(-Math.PI / 1.8) * 30, 4, 0, Math.PI * 2);
-            ctx.arc(10 + Math.cos(Math.PI / 1.8) * 30, Math.sin(Math.PI / 1.8) * 30, 4, 0, Math.PI * 2);
-            ctx.fill();
 
             // Corda sendo puxada
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.strokeStyle = '#d7ccc8'; // Linho/Cânhamo
             ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.moveTo(10 + Math.cos(-Math.PI / 1.8) * 30, Math.sin(-Math.PI / 1.8) * 30);
-            ctx.lineTo(-5, 0); // Ponto de puxada
-            ctx.lineTo(10 + Math.cos(Math.PI / 1.8) * 30, Math.sin(Math.PI / 1.8) * 30);
+            ctx.moveTo(10 + Math.cos(-Math.PI / 1.7) * 35, Math.sin(-Math.PI / 1.7) * 35);
+            ctx.lineTo(-8, 0); // Ponto de puxada profunda (Gasta stamina!)
+            ctx.lineTo(10 + Math.cos(Math.PI / 1.7) * 35, Math.sin(Math.PI / 1.7) * 35);
             ctx.stroke();
+            
+            // Flecha posicionada (Haste de madeira, ponta de aço)
+            ctx.fillStyle = '#8d6e63'; // Madeira da flecha
+            ctx.fillRect(-8, -1, 30, 2);
+            ctx.fillStyle = '#e0e0e0'; // Ponta de aço
+            ctx.beginPath();
+            ctx.moveTo(22, -3); ctx.lineTo(32, 0); ctx.lineTo(22, 3);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff'; // Penas (Fletching)
+            ctx.fillRect(-8, -3, 6, 2);
+            ctx.fillRect(-8, 1, 6, 2);
         }
 
         ctx.restore();

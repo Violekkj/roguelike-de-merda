@@ -33,15 +33,15 @@ class Boss {
     }
 
     getMoveTypeByTheme(theme) {
-        if (theme === 'alien') return 'patrol'; // Aliens agora patrulham andando
-        if (theme === 'barbarian') return 'chase'; // Bárbaros perseguem andando
-        return 'wander'; // Mutantes andam erraticamente
+        if (theme === 'warlock') return 'wander'; // Bruxos andam lentamente pela arena
+        if (theme === 'knight') return 'chase'; // Cavaleiros perseguem andando
+        return 'patrol'; // Bestas patrulham erráticas
     }
 
     getSpeedByTheme(theme) {
-        if (theme === 'barbarian') return 2.8;
-        if (theme === 'alien') return 3.2;
-        return 2.5;
+        if (theme === 'knight') return 2.6;
+        if (theme === 'beast') return 3.4;
+        return 2.0; // warlock é mais lento
     }
 
     update(player, deltaTime, canvasWidth, canvasHeight) {
@@ -55,7 +55,7 @@ class Boss {
         // --- LÓGICA DE MOVIMENTO (ANDANDO) ---
         if (this.moveType === 'chase') {
             const dx = player.x - this.x;
-            const dy = (player.y - 150) - this.y;
+            const dy = player.y - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist > 10) {
                 this.x += (dx / dist) * this.speed;
@@ -140,9 +140,9 @@ class Boss {
     }
 
     getPatternsByTheme() {
-        if (this.theme === 'alien') return ['laser', 'directed'];
-        if (this.theme === 'barbarian') return ['wave', 'directed'];
-        return ['sludge', 'directed'];
+        if (this.theme === 'warlock') return ['laser', 'directed']; // Fireballs / Dark magic
+        if (this.theme === 'knight') return ['wave', 'directed']; // Sword waves
+        return ['sludge', 'directed']; // Beast spit / leaps
     }
 
     shootLaser(player) {
@@ -243,46 +243,77 @@ class Boss {
 
     drawThemedBody(ctx) {
         ctx.save();
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#000'; // Sombra mais sombria
         ctx.fillStyle = this.color;
 
         if (this.state === 'telegraphing') {
-            ctx.strokeStyle = '#fff';
+            ctx.strokeStyle = '#ff0000';
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius + 15, 0, Math.PI * 2);
             ctx.stroke();
+            
+            // Círculo mágico de ataque (Se for Warlock)
+            if (this.theme === 'warlock') {
+                ctx.strokeStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius + 30, this.telegraphTimer/100, Math.PI + this.telegraphTimer/100);
+                ctx.stroke();
+            }
         }
 
-        if (this.theme === 'alien') {
+        if (this.theme === 'warlock') {
+            // Manto de Bruxo (Triângulo com capuz)
             ctx.beginPath();
             ctx.moveTo(this.x, this.y - this.radius);
-            ctx.lineTo(this.x + this.radius, this.y + this.radius / 2);
-            ctx.lineTo(this.x - this.radius, this.y + this.radius / 2);
+            ctx.lineTo(this.x + this.radius, this.y + this.radius + 10);
+            ctx.lineTo(this.x - this.radius, this.y + this.radius + 10);
             ctx.closePath();
             ctx.fill();
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            ctx.beginPath(); ctx.arc(this.x, this.y - 15, 15, 0, Math.PI * 2); ctx.fill();
-        } else if (this.theme === 'barbarian') {
-            ctx.fillRect(this.x - this.radius, this.y - this.radius / 2, this.radius * 2, this.radius);
-            ctx.fillStyle = '#000';
-            ctx.fillRect(this.x - 20, this.y - 10, 40, 5);
-        } else if (this.theme === 'mutant') {
+            
+            // Fenda escura no capuz e olhos mágicos
+            ctx.fillStyle = '#0a0a0a';
+            ctx.beginPath(); ctx.arc(this.x, this.y - 10, 15, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = this.color; // Olhos da cor do bruxo
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = this.color;
+            ctx.beginPath(); ctx.arc(this.x - 5, this.y - 12, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x + 5, this.y - 12, 3, 0, Math.PI * 2); ctx.fill();
+            
+        } else if (this.theme === 'knight') {
+            // Armadura Pesada Quadrada (Cavaleiro Negro)
+            ctx.fillStyle = '#303030';
+            ctx.fillRect(this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+            ctx.fillStyle = this.color; // Detalhe da capa/penacho
+            ctx.fillRect(this.x - this.radius, this.y - this.radius - 15, this.radius * 2, 15);
+            
+            // Fenda do elmo do boss
+            ctx.fillStyle = '#111';
+            ctx.fillRect(this.x - 25, this.y - 15, 50, 8);
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(this.x - 5, this.y - 14, 10, 6);
+            
+        } else if (this.theme === 'beast') {
+            // Besta Feroz (Forma peluda/espetada irregular)
+            ctx.fillStyle = '#4a3020'; // Marrom/Escuro
             ctx.beginPath();
-            for (let i = 0; i < 8; i++) {
-                const a = (Math.PI * 2 / 8) * i + this.bobbing;
-                const r = this.radius + Math.sin(this.bobbing * 5 + i) * 10;
+            for (let i = 0; i < 12; i++) {
+                const a = (Math.PI * 2 / 12) * i + this.bobbing;
+                const r = this.radius + Math.sin(this.bobbing * 5 + i * 2) * 15;
                 const px = this.x + Math.cos(a) * r;
                 const py = this.y + Math.sin(a) * r;
                 if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath();
             ctx.fill();
+            
+            // Olhos e listras da fera
+            ctx.fillStyle = this.color;
+            ctx.beginPath(); ctx.arc(this.x - 15, this.y - 5, 5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x + 15, this.y - 5, 5, 0, Math.PI*2); ctx.fill();
         }
 
-        ctx.fillStyle = '#000';
-        ctx.beginPath(); ctx.arc(this.x, this.y, 8, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
     }
 

@@ -18,9 +18,9 @@ class Dungeon {
         const bossColor = this.getBossColor(this.currentRoom);
 
         // Atribuir TEMA de boss baseado na sala
-        let bossTheme = 'alien';
-        if (this.currentRoom >= 7) bossTheme = 'mutant';
-        else if (this.currentRoom >= 4) bossTheme = 'barbarian';
+        let bossTheme = 'warlock';
+        if (this.currentRoom >= 7) bossTheme = 'beast';
+        else if (this.currentRoom >= 4) bossTheme = 'knight';
 
         this.currentBoss = new Boss(bossName, bossHealth, bossColor, bossTheme);
         this.gameState = 'playing';
@@ -30,19 +30,19 @@ class Dungeon {
 
     getBossName(room) {
         const names = [
-            "Sentinela de Plasma", "Nave Batedora X-1", "Supremo de Netuno",
-            "General Grrog", "Bárbaro da Cicatriz", "Conquistador de Reinos",
-            "Gloom Amorfo", "Mutante Radioativo", "Colosso da Podridão",
-            "ANTIGRAVITY PRIME"
+            "Aprendiz Sombrio", "Cabalista de Fogo", "Senhor Necromante",
+            "Cavaleiro Decaído", "Vanguarda de Ferro", "Lorde Comandante",
+            "Lobo Terrível", "Mantícora Espinhosa", "Wyvern das Profundezas",
+            "DRAGÃO ANTIGRAVITY"
         ];
-        return names[room - 1] || `Inimigo ${room}`;
+        return names[room - 1] || `Aberraçao ${room}`;
     }
 
     getBossColor(room) {
         const colors = [
-            '#ff4d4d', '#4dffb5', '#4da6ff', '#ffb54d',
-            '#b54dff', '#ffff4d', '#4dffff', '#ff4dff',
-            '#ff804d', '#ffffff'
+            '#ff4d4d', '#ff8c00', '#9932cc', '#708090',
+            '#4682b4', '#d4af37', '#8b4513', '#556b2f',
+            '#2f4f4f', '#8b0000'
         ];
         return colors[(room - 1) % colors.length];
     }

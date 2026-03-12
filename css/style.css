@@ -1,14 +1,14 @@
 :root {
-    --bg-color: #0d0d12;
-    --panel-bg: rgba(30, 30, 45, 0.7);
-    --border-color: rgba(255, 255, 255, 0.1);
-    --accent-color: #7c4dff;
-    --accent-glow: rgba(124, 77, 255, 0.4);
-    --hp-color: #ff4d4d;
-    --stamina-color: #4dffb5;
-    --text-primary: #f0f0f5;
-    --text-secondary: #a0a0b0;
-    --font-main: 'Outfit', sans-serif;
+    --bg-color: #080808;
+    --panel-bg: rgba(20, 15, 10, 0.85); /* Dark brown/wood */
+    --border-color: #3e2723; /* Darker brown border */
+    --accent-color: #d4af37; /* Gold */
+    --accent-glow: rgba(212, 175, 55, 0.4);
+    --hp-color: #b22222; /* Blood Red */
+    --stamina-color: #4da6ff; /* Mana/Stamina Blue */
+    --text-primary: #e6dfcc; /* Parchment white */
+    --text-secondary: #a89f91;
+    --font-main: 'Cinzel', serif;
 }
 
 * {
@@ -19,6 +19,7 @@
 
 body {
     background-color: var(--bg-color);
+    background-image: radial-gradient(circle at center, #1a1512 0%, #000 100%);
     color: var(--text-primary);
     font-family: var(--font-main);
     height: 100vh;
@@ -42,19 +43,17 @@ body {
     align-items: center;
     padding: 10px 20px;
     background: var(--panel-bg);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    border: 3px double var(--accent-color);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
 }
 
 .premium-title {
     font-size: 1.5rem;
     font-weight: 700;
-    letter-spacing: 4px;
-    background: linear-gradient(135deg, #fff, var(--accent-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 20px var(--accent-glow);
+    letter-spacing: 2px;
+    color: var(--accent-color);
+    text-shadow: 2px 2px 4px #000;
 }
 
 #game-stats {
@@ -70,21 +69,25 @@ body {
 }
 
 .label {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
+    font-weight: bold;
 }
 
 .value {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
 }
 
 .hp-bar-container, .stamina-bar-container {
-    height: 6px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
+    height: 8px;
+    background: #111;
+    border: 1px solid #000;
+    border-radius: 2px;
     overflow: hidden;
     width: 100%;
 }
@@ -92,27 +95,25 @@ body {
 .hp-bar {
     height: 100%;
     width: 100%;
-    background: var(--hp-color);
-    box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+    background: linear-gradient(90deg, #8b0000, var(--hp-color));
     transition: width 0.3s ease;
 }
 
 .stamina-bar {
     height: 100%;
     width: 100%;
-    background: var(--stamina-color);
-    box-shadow: 0 0 10px rgba(77, 255, 181, 0.5);
+    background: linear-gradient(90deg, #0d47a1, var(--stamina-color));
     transition: width 0.3s ease;
 }
 
 #game-viewport {
     position: relative;
     flex-grow: 1;
-    background: #000;
-    border-radius: 12px;
+    background: #0d0d0d;
+    border-radius: 4px;
     overflow: hidden;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 4px solid #1a1512;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 20px #000;
 }
 
 #game-canvas {
@@ -140,7 +141,7 @@ body {
     height: 100%;
     justify-content: center;
     align-items: center;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.8);
 }
 
 .overlay-screen.active {
@@ -148,50 +149,61 @@ body {
 }
 
 .glass-panel {
-    background: rgba(25, 25, 35, 0.8);
-    backdrop-filter: blur(15px);
-    border: 1px solid var(--border-color);
+    background: var(--panel-bg);
+    border: 2px solid var(--accent-color);
     padding: 40px;
-    border-radius: 24px;
+    border-radius: 4px; /* Blocky/Wood sign style */
     text-align: center;
-    max-width: 400px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(0,0,0,0.5);
     animation: fadeIn 0.5s ease-out;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 .glass-panel h2 {
-    margin-bottom: 15px;
-    font-size: 1.8rem;
-    color: #fff;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
 }
 
 .glass-panel p {
-    color: var(--text-secondary);
+    color: var(--text-primary);
     margin-bottom: 30px;
     line-height: 1.6;
+    font-size: 1.1rem;
 }
 
 .premium-button {
-    background: linear-gradient(135deg, var(--accent-color), #5e35b1);
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 8px;
+    background: linear-gradient(to bottom, #4e342e, #3e2723);
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    padding: 12px 35px;
+    border-radius: 2px;
     font-family: inherit;
+    font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
-    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    letter-spacing: 2px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
 }
 
 .premium-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px var(--accent-glow);
+    background: linear-gradient(to bottom, #5d4037, #4e342e);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.6), 0 0 10px var(--accent-glow);
+}
+
+.premium-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 #game-controls-hint {
@@ -199,21 +211,24 @@ body {
     justify-content: center;
     gap: 30px;
     background: var(--panel-bg);
-    padding: 10px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
+    padding: 12px;
+    border-radius: 4px;
+    border: 2px solid var(--border-color);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
 }
 
 .control-hint {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: bold;
 }
 
 .control-hint span {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: #fff;
+    background: #111;
+    padding: 4px 8px;
+    border-radius: 2px;
+    color: var(--accent-color);
     margin-right: 5px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #333;
+    font-family: monospace;
 }
