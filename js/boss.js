@@ -52,15 +52,27 @@ class Boss {
             } else if (this.moveType === 'patrol') {
                 if (!this.patrolDir) this.patrolDir = 1;
                 this.x += this.patrolDir * this.speed;
-                if (this.x > canvasWidth - 150 || this.x < 150) {
-                    this.patrolDir *= -1;
+                // Bater e voltar nas bordas do mapa (com sobra para evitar travar)
+                if (this.x > canvasWidth - this.radius - 20) {
+                    this.patrolDir = -1;
+                } else if (this.x < this.radius + 20) {
+                    this.patrolDir = 1;
                 }
                 const groundY = 200;
                 this.y += (groundY - this.y) * 0.05;
+
             } else if (this.moveType === 'wander') {
-                this.moveAngle += (Math.random() - 0.5) * 0.1;
+                this.moveAngle += (Math.random() - 0.5) * 0.2;
                 this.x += Math.cos(this.moveAngle) * this.speed;
                 this.y += Math.sin(this.moveAngle * 0.5) * (this.speed * 0.5);
+
+                // Se encostar nas bordas, inverte violentamente o ângulo para o centro
+                if (this.x < this.radius + 20 || this.x > canvasWidth - this.radius - 20 ||
+                    this.y < this.radius + 20 || this.y > canvasHeight - this.radius - 20) {
+                    
+                    const centerAngle = Math.atan2((canvasHeight/2) - this.y, (canvasWidth/2) - this.x);
+                    this.moveAngle = centerAngle; 
+                }
             } else if (this.moveType === 'hover') {
                 this.y = 150 + Math.sin(Date.now() / 500) * 30;
                 this.x += (player.x - this.x) * 0.02; // Segue devagar pelo eixo X
@@ -112,12 +124,8 @@ class Boss {
             const dy = p.y - player.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            if (p.type === 'laser') {
-                if (dist < player.radius + 15) player.takeDamage(1);
-            } else if (p.type === 'line') {
-                if (dist < player.radius + 25) hit = true;
-            } else {
-                if (dist < player.radius + p.radius) hit = true;
+            if (dist < player.radius + p.size) {
+                hit = true;
             }
 
             if (hit) {

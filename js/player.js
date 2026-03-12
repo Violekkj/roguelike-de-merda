@@ -68,8 +68,10 @@ class Player {
         this.x = Math.max(this.radius, Math.min(canvasWidth - this.radius, this.x));
         this.y = Math.max(this.radius, Math.min(canvasHeight - this.radius, this.y));
 
-        // Dash Logic
-        if ((keys[' '] || keys['Shift']) && this.canDash && (dx !== 0 || dy !== 0)) {
+        // Dash Logic (Agora gasta Mana!)
+        const dashCost = 30;
+        if ((keys[' '] || keys['Shift']) && this.canDash && this.mana >= dashCost && (dx !== 0 || dy !== 0)) {
+            this.mana -= dashCost;
             this.startDash();
         }
 

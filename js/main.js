@@ -95,8 +95,7 @@ function handleCombat() {
     }
 
     // Arco (Botão Dir)
-    if (mouse.rightClick && player.mana >= player.bowCost && !player.isAttacking) {
-        player.mana -= player.bowCost;
+    if (mouse.rightClick && !player.isAttacking) {
         player.isAttacking = true;
         player.attackType = 'bow';
 
