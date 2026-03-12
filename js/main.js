@@ -522,10 +522,12 @@ function handleCombat() {
     const swordDmg = 15 + (player.swordBonus || 0);
     const bowDmg = 10 + (player.bowBonus || 0);
 
-    // Espada (Botão Esq)
-    if (mouse.click && !player.isAttacking) {
+    // Espada (Botão Esq) - Com cooldown real
+    if (mouse.click && player.swordCooldownTimer <= 0 && !player.isAttacking) {
         player.isAttacking = true;
         player.attackType = 'sword';
+        player.swordCooldownTimer = player.swordCooldownMax;
+        player.swordSwingDir = player.swordSwingDir * -1; // Alterna direção do swing
         playSound('sword');
 
         const dx = dungeon.currentBoss.x - player.x;
@@ -540,7 +542,6 @@ function handleCombat() {
             createDamageNumber(dungeon.currentBoss.x, dungeon.currentBoss.y, swordDmg, false);
             triggerShake(4, 100);
             playSound('hit');
-            // Life Steal
             if (player.lifeSteal) {
                 player.health = Math.min(player.maxHealth, player.health + player.lifeSteal);
             }
@@ -549,13 +550,14 @@ function handleCombat() {
         setTimeout(() => {
             player.isAttacking = false;
             player.attackType = null;
-        }, 200);
+        }, 250); // Animação de 250ms, mas cooldown real é 500ms
     }
 
-    // Arco (Botão Dir)
-    if (mouse.rightClick && !player.isAttacking) {
+    // Arco (Botão Dir) - Com cooldown real
+    if (mouse.rightClick && player.bowCooldownTimer <= 0 && !player.isAttacking) {
         player.isAttacking = true;
         player.attackType = 'bow';
+        player.bowCooldownTimer = player.bowCooldownMax;
         playSound('bow');
 
         const speed = 10 * (player.arrowSpeed || 1.0);
@@ -568,19 +570,28 @@ function handleCombat() {
             vx: vx, vy: vy,
             angle: player.angle,
             radius: 5,
-            damage: bowDmg
+            damage: bowDmg,
+            trail: [] // Trail da flecha
         });
 
         setTimeout(() => {
             player.isAttacking = false;
             player.attackType = null;
-        }, 400);
+        }, 300);
     }
 }
 
 function updateProjectiles() {
     for (let i = playerProjectiles.length - 1; i >= 0; i--) {
         const p = playerProjectiles[i];
+        
+        // Guardar trail
+        if (p.trail) {
+            p.trail.push({ x: p.x, y: p.y, life: 1.0 });
+            if (p.trail.length > 6) p.trail.shift();
+            p.trail.forEach(t => t.life -= 0.2);
+        }
+        
         p.x += p.vx;
         p.y += p.vy;
 
@@ -607,23 +618,65 @@ function updateProjectiles() {
 
 function drawProjectiles() {
     playerProjectiles.forEach(p => {
+        // Trail luminoso da flecha
+        if (p.trail) {
+            p.trail.forEach(t => {
+                if (t.life > 0) {
+                    ctx.save();
+                    ctx.globalAlpha = t.life * 0.4;
+                    ctx.fillStyle = '#4dffb5';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = '#4dffb5';
+                    ctx.beginPath();
+                    ctx.arc(t.x, t.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            });
+        }
+
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.angle);
 
-        ctx.strokeStyle = '#4dffb5';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(-10, 0);
-        ctx.lineTo(10, 0);
-        ctx.stroke();
+        // Aura de energia
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = '#4dffb5';
 
-        ctx.fillStyle = '#4dffb5';
+        // Haste de madeira (Gradiente)
+        const shaftGrad = ctx.createLinearGradient(-12, 0, 12, 0);
+        shaftGrad.addColorStop(0, '#5d4037');
+        shaftGrad.addColorStop(1, '#8d6e63');
+        ctx.fillStyle = shaftGrad;
+        ctx.fillRect(-12, -1.5, 24, 3);
+
+        // Ponta afiada brilhante
+        ctx.fillStyle = '#e0e0e0';
         ctx.beginPath();
-        ctx.moveTo(10, 0);
-        ctx.lineTo(5, -3);
-        ctx.lineTo(5, 3);
+        ctx.moveTo(12, -3);
+        ctx.lineTo(20, 0);
+        ctx.lineTo(12, 3);
         ctx.fill();
+        // Brilho na ponta
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.moveTo(14, -1);
+        ctx.lineTo(18, 0);
+        ctx.lineTo(14, 1);
+        ctx.fill();
+
+        // Penas (Fletching) coloridas
+        ctx.fillStyle = '#ff4444';
+        ctx.beginPath();
+        ctx.moveTo(-12, -1.5); ctx.lineTo(-17, -5); ctx.lineTo(-8, -1.5); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(-12, 1.5); ctx.lineTo(-17, 5); ctx.lineTo(-8, 1.5); ctx.fill();
+        // Segunda camada
+        ctx.fillStyle = '#ffcc00';
+        ctx.beginPath();
+        ctx.moveTo(-10, -1.5); ctx.lineTo(-13, -3.5); ctx.lineTo(-6, -1.5); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(-10, 1.5); ctx.lineTo(-13, 3.5); ctx.lineTo(-6, 1.5); ctx.fill();
 
         ctx.restore();
     });
