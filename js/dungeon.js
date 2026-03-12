@@ -2,7 +2,7 @@ class Dungeon {
     constructor() {
         this.currentRoom = 1;
         this.totalRooms = 10;
-        this.gameState = 'start'; // start, playing, boss_dead, game_over, victory
+        this.gameState = 'start'; // start, playing, boss_dead, loot, game_over, victory
         this.currentBoss = null;
     }
 
@@ -18,10 +18,14 @@ class Dungeon {
         this.gameState = 'playing';
 
         document.getElementById('room-number').innerText = `${this.currentRoom} / ${this.totalRooms}`;
+
+        // Iniciar transição de sala
+        if (typeof startRoomTransition === 'function') {
+            startRoomTransition(this.currentRoom, config.name);
+        }
     }
 
     getBossConfig(room) {
-        // Configuramos cada um dos 10 bosses individualmente aqui
         switch(room) {
             case 1: return {
                 name: "Aprendiz Sombrio", health: 150, color: '#ff4d4d',
@@ -85,10 +89,21 @@ class Dungeon {
         if (this.gameState === 'playing' && this.currentBoss) {
             if (this.currentBoss.health <= 0) {
                 this.gameState = 'boss_dead';
-                setTimeout(() => {
-                    this.currentRoom++;
-                    this.startNextRoom();
-                }, 1500);
+                if (typeof playSound === 'function') playSound('boss_die');
+
+                if (this.currentRoom >= this.totalRooms) {
+                    // Último boss — vitória!
+                    setTimeout(() => {
+                        this.gameState = 'victory';
+                        this.showOverlay('victory-screen');
+                    }, 1500);
+                } else {
+                    // Mostrar tela de loot
+                    setTimeout(() => {
+                        this.gameState = 'loot';
+                        if (typeof showLootScreen === 'function') showLootScreen();
+                    }, 1000);
+                }
             }
 
             if (player.health <= 0) {
@@ -96,6 +111,10 @@ class Dungeon {
                 this.showOverlay('game-over-screen');
             }
         }
+    }
+
+    proceedAfterLoot() {
+        this.startNextRoom();
     }
 
     showOverlay(id) {

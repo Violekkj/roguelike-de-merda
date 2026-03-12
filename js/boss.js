@@ -138,10 +138,25 @@ class Boss {
             }
 
             if (hit) {
-                player.takeDamage(10);
-                // Chama a partícula global (que agora suporta tipos mágicos)
+                let dmg = 10;
+                // Aplicar armadura do jogador
+                if (player.armor) dmg = Math.max(1, dmg - player.armor);
+                player.takeDamage(dmg);
+                // Partícula mágica
                 if (typeof createHitEffect === 'function') {
                     createHitEffect(player.x, player.y, null, p.type);
+                }
+                // Número de dano flutuante (vermelho = dano recebido)
+                if (typeof createDamageNumber === 'function') {
+                    createDamageNumber(player.x, player.y, dmg, true);
+                }
+                // Screen shake
+                if (typeof triggerShake === 'function') {
+                    triggerShake(6, 150);
+                }
+                // Som de dano
+                if (typeof playSound === 'function') {
+                    playSound('player_hit');
                 }
                 this.projectiles.splice(i, 1);
                 continue;

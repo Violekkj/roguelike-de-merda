@@ -70,7 +70,8 @@ class Player {
         this.y = Math.max(wallMargin, Math.min(canvasHeight - wallMargin, this.y));
 
         // Dash Logic (Agora gasta Mana!)
-        const dashCost = 30;
+        let dashCost = 30;
+        if (this.dashDiscount) dashCost = Math.max(5, Math.floor(dashCost * (1 - this.dashDiscount)));
         if ((keys[' '] || keys['Shift']) && this.canDash && this.mana >= dashCost && (dx !== 0 || dy !== 0)) {
             this.mana -= dashCost;
             this.startDash();
@@ -85,6 +86,7 @@ class Player {
         this.canDash = false;
         this.isInvincible = true;
         this.lastDashTime = Date.now();
+        if (typeof playSound === 'function') playSound('dash');
 
         setTimeout(() => {
             this.isDashing = false;
