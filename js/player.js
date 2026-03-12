@@ -64,9 +64,10 @@ class Player {
         // Direção do Mouse (para mira)
         this.angle = Math.atan2(mouse.y - this.y, mouse.x - this.x);
 
-        // Colisões com as bordas
-        this.x = Math.max(this.radius, Math.min(canvasWidth - this.radius, this.x));
-        this.y = Math.max(this.radius, Math.min(canvasHeight - this.radius, this.y));
+        // Colisões com as bordas (margem de 30px para não ficar preso nas paredes)
+        const wallMargin = 30;
+        this.x = Math.max(wallMargin, Math.min(canvasWidth - wallMargin, this.x));
+        this.y = Math.max(wallMargin, Math.min(canvasHeight - wallMargin, this.y));
 
         // Dash Logic (Agora gasta Mana!)
         const dashCost = 30;

@@ -179,6 +179,9 @@ class Boss {
             case 'dash_strike':
                 this.x += Math.cos(angleToPlayer) * 150; // Bone dash
                 this.y += Math.sin(angleToPlayer) * 150;
+                // Re-clampar posição para não sair do mapa
+                this.x = Math.max(this.radius + 20, Math.min(800 - this.radius - 20, this.x));
+                this.y = Math.max(this.radius + 20, Math.min(600 - this.radius - 20, this.y));
                 break;
             case 'fireball_spread':
                 for(let i = -2; i <= 2; i++) {
@@ -214,6 +217,9 @@ class Boss {
             case 'shadow_step':
                 this.x = player.x + (Math.random()-0.5)*200;
                 this.y = player.y + (Math.random()-0.5)*200;
+                // Re-clampar
+                this.x = Math.max(this.radius + 20, Math.min(800 - this.radius - 20, this.x));
+                this.y = Math.max(this.radius + 20, Math.min(600 - this.radius - 20, this.y));
                 createProj(Math.cos(angleToPlayer)*8, Math.sin(angleToPlayer)*8, 10, 'shadow_burst', 50);
                 break;
             case 'ice_spike':
@@ -513,10 +519,12 @@ class Boss {
                 ctx.beginPath(); ctx.arc(this.x - 20, this.y + Math.sin(this.bobbing*5)*5, 3, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(this.x + 25, this.y + 10 + Math.cos(this.bobbing*4)*5, 2, 0, Math.PI*2); ctx.fill();
                 // Chicote Ácido (Arma)
-                ctx.strokeStyle = '#7fff00'; ctx.lineWidth = 6; ctx.lineCap = 'round';
-                ctx.beginPath(); ctx.moveTo(this.x + this.radius, this.y); const whipBob = Math.sin(this.bobbing * 15) * 20;
-                ctx.quadraticCurveTo(this.x + this.radius + 30, this.y - 40 + whipBob, this.x + this.radius + 60, this.y + whipBob); ctx.stroke();
-                ctx.fillStyle = '#32cd32'; ctx.beginPath(); ctx.arc(this.x + this.radius + 60, this.y + whipBob, 5, 0, Math.PI*2); ctx.fill();
+                {
+                    ctx.strokeStyle = '#7fff00'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.moveTo(this.x + this.radius, this.y); const whipBob = Math.sin(this.bobbing * 15) * 20;
+                    ctx.quadraticCurveTo(this.x + this.radius + 30, this.y - 40 + whipBob, this.x + this.radius + 60, this.y + whipBob); ctx.stroke();
+                    ctx.fillStyle = '#32cd32'; ctx.beginPath(); ctx.arc(this.x + this.radius + 60, this.y + whipBob, 5, 0, Math.PI*2); ctx.fill();
+                }
                 break;
 
             case 'assassin':
@@ -601,13 +609,15 @@ class Boss {
                 ctx.fillStyle = '#000'; ctx.shadowBlur = 0; ctx.beginPath(); ctx.arc(this.x, this.y - 20, 10, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y - 20, 2, 0, Math.PI*2); ctx.fill();
                 // Orbe do Vazio (Arma)
-                const orbY = this.y - 20 + Math.sin(Date.now()/200)*10;
-                ctx.fillStyle = '#000'; ctx.shadowBlur = 20; ctx.shadowColor = '#8a2be2';
-                ctx.beginPath(); ctx.arc(this.x + this.radius + 20, orbY, 12, 0, Math.PI*2); ctx.fill();
-                ctx.strokeStyle = '#9400d3'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(this.x + this.radius + 20, orbY, 18, 0, Math.PI*2); ctx.stroke();
+                {
+                    const orbY = this.y - 20 + Math.sin(Date.now()/200)*10;
+                    ctx.fillStyle = '#000'; ctx.shadowBlur = 20; ctx.shadowColor = '#8a2be2';
+                    ctx.beginPath(); ctx.arc(this.x + this.radius + 20, orbY, 12, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = '#9400d3'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(this.x + this.radius + 20, orbY, 18, 0, Math.PI*2); ctx.stroke();
+                }
                 break;
 
-            case 'dragon':
+            case 'dragon': {
                 // DRAGÃO DETALHADO Gigante
                 ctx.fillStyle = '#3d0a0a'; // Vermelho muito escuro
                 const bob = Math.sin(this.bobbing*2);
@@ -661,6 +671,7 @@ class Boss {
                 ctx.beginPath(); ctx.moveTo(this.x - 40, this.y + 30); ctx.lineTo(this.x - 70, this.y + 60); ctx.lineTo(this.x - 50, this.y + 30); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(this.x - 50, this.y + 25); ctx.lineTo(this.x - 80, this.y + 45); ctx.lineTo(this.x - 60, this.y + 20); ctx.fill();
                 break;
+            }
         }
 
         ctx.restore();
