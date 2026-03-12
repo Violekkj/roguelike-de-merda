@@ -11,10 +11,10 @@ class Boss {
         this.y = 200;
 
         this.state = 'spawning';
-        this.spawnTimer = 2000;
+        this.spawnTimer = 1000;
         this.telegraphTimer = 0;
         this.telegraphDuration = 800; // Será sobrescrito pelo ataque
-        this.lastAttackTime = Date.now() + 2000; // Começa a contar após o spawn
+        this.lastAttackTime = Date.now() + 1000; // Começa a contar após o spawn
         this.attackCooldown = config.cooldown;
         this.patterns = config.patterns;
 
@@ -433,6 +433,9 @@ class Boss {
                 ctx.fillStyle = this.color; ctx.shadowBlur = 15; ctx.shadowColor = this.color;
                 ctx.beginPath(); ctx.arc(this.x - 15, this.y - 15, 5 + Math.random()*2, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(this.x + 15, this.y - 15, 5 + Math.random()*2, 0, Math.PI*2); ctx.fill();
+                // Clava de Osso Gigante (Arma)
+                ctx.fillStyle = '#dcdcdc'; ctx.beginPath(); ctx.moveTo(this.x + this.radius + 10, this.y + 20); ctx.lineTo(this.x + this.radius + 30, this.y - 40); ctx.lineTo(this.x + this.radius + 40, this.y - 35); ctx.lineTo(this.x + this.radius + 20, this.y + 25); ctx.fill();
+                ctx.fillStyle = '#aaa'; ctx.beginPath(); ctx.arc(this.x + this.radius + 35, this.y - 30, 5, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(this.x + this.radius + 25, this.y - 35, 6, 0, Math.PI*2); ctx.fill();
                 break;
 
             case 'cultist':
@@ -451,6 +454,9 @@ class Boss {
                 // Olho flutuante no peito
                 ctx.fillStyle = '#ff0000'; ctx.shadowBlur = 15; ctx.shadowColor = '#ff0000';
                 ctx.beginPath(); ctx.arc(this.x, this.y + 10, 8, 0, Math.PI*2); ctx.fill();
+                // Adaga Sacrificial Curvada (Arma)
+                ctx.shadowBlur = 0; ctx.fillStyle = '#444'; ctx.fillRect(this.x + this.radius + 5, this.y, 6, 15);
+                ctx.fillStyle = '#b22222'; ctx.beginPath(); ctx.moveTo(this.x + this.radius + 5, this.y); ctx.quadraticCurveTo(this.x + this.radius + 20, this.y - 20, this.x + this.radius + 10, this.y - 30); ctx.lineTo(this.x + this.radius + 11, this.y); ctx.fill();
                 break;
 
             case 'fallen_knight':
@@ -475,6 +481,10 @@ class Boss {
                 // Capa esfarrapada vermelha
                 ctx.fillStyle = '#8b0000'; ctx.shadowBlur = 0;
                 ctx.beginPath(); ctx.moveTo(this.x - this.radius, this.y - this.radius + 15); ctx.lineTo(this.x - this.radius - 30, this.y + this.radius + 20); ctx.lineTo(this.x - this.radius + 10, this.y + 10); ctx.fill();
+                // Montante Negra Colossal (Arma)
+                ctx.fillStyle = '#1a1a1a'; ctx.fillRect(this.x + this.radius + 15, this.y - 10, 5, 30); ctx.fillRect(this.x + this.radius + 5, this.y - 10, 25, 6);
+                ctx.fillStyle = '#404040'; ctx.beginPath(); ctx.moveTo(this.x + this.radius + 12, this.y - 10); ctx.lineTo(this.x + this.radius + 12, this.y - 70); ctx.lineTo(this.x + this.radius + 17, this.y - 80); ctx.lineTo(this.x + this.radius + 23, this.y - 70); ctx.lineTo(this.x + this.radius + 23, this.y - 10); ctx.fill();
+                ctx.fillStyle = '#8b0000'; ctx.fillRect(this.x + this.radius + 16, this.y - 65, 3, 50);
                 break;
 
             case 'slime':
@@ -502,6 +512,11 @@ class Boss {
                 ctx.fillStyle = '#32cd32';
                 ctx.beginPath(); ctx.arc(this.x - 20, this.y + Math.sin(this.bobbing*5)*5, 3, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(this.x + 25, this.y + 10 + Math.cos(this.bobbing*4)*5, 2, 0, Math.PI*2); ctx.fill();
+                // Chicote Ácido (Arma)
+                ctx.strokeStyle = '#7fff00'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+                ctx.beginPath(); ctx.moveTo(this.x + this.radius, this.y); const whipBob = Math.sin(this.bobbing * 15) * 20;
+                ctx.quadraticCurveTo(this.x + this.radius + 30, this.y - 40 + whipBob, this.x + this.radius + 60, this.y + whipBob); ctx.stroke();
+                ctx.fillStyle = '#32cd32'; ctx.beginPath(); ctx.arc(this.x + this.radius + 60, this.y + whipBob, 5, 0, Math.PI*2); ctx.fill();
                 break;
 
             case 'assassin':
@@ -518,9 +533,10 @@ class Boss {
                 ctx.fillStyle = this.color; ctx.shadowBlur = 15; ctx.shadowColor = this.color;
                 ctx.beginPath(); ctx.moveTo(this.x - 14, this.y - 25); ctx.lineTo(this.x - 2, this.y - 20); ctx.lineTo(this.x - 10, this.y - 18); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(this.x + 14, this.y - 25); ctx.lineTo(this.x + 2, this.y - 20); ctx.lineTo(this.x + 10, this.y - 18); ctx.fill();
-                // Adaga na mão
+                // Adagas Gêmeas (Arma)
                 ctx.fillStyle = '#888';
                 ctx.beginPath(); ctx.moveTo(this.x + this.radius, this.y + 10); ctx.lineTo(this.x + this.radius + 15, this.y - 15); ctx.lineTo(this.x + this.radius + 5, this.y + 10); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x - this.radius, this.y + 10); ctx.lineTo(this.x - this.radius - 15, this.y - 15); ctx.lineTo(this.x - this.radius - 5, this.y + 10); ctx.fill();
                 break;
 
             case 'golem':
@@ -537,6 +553,9 @@ class Boss {
                 // Núcleo de Vida
                 ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 25; ctx.shadowColor = '#00ffff';
                 ctx.beginPath(); ctx.moveTo(this.x, this.y - 10); ctx.lineTo(this.x + 10, this.y); ctx.lineTo(this.x, this.y + 10); ctx.lineTo(this.x - 10, this.y); ctx.fill();
+                // Lança de Gelo (Arma)
+                ctx.shadowBlur = 0; ctx.fillStyle = '#b0e0e6'; ctx.beginPath(); ctx.moveTo(this.x + this.radius + 10, this.y + 30); ctx.lineTo(this.x + this.radius + 15, this.y + 30); ctx.lineTo(this.x + this.radius + 12, this.y - 60); ctx.fill();
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.stroke();
                 break;
 
             case 'warlord':
@@ -556,6 +575,10 @@ class Boss {
                 ctx.fillStyle = '#000'; ctx.fillRect(this.x - 15, this.y - this.radius + 15, 30, 20);
                 ctx.fillStyle = '#ff8c00'; ctx.shadowBlur = 20; ctx.shadowColor = '#ff4500';
                 ctx.fillRect(this.x - 12, this.y - this.radius + 18, 24, 14); // Magma glow
+                // Machado de Batalha de Magma (Arma)
+                ctx.shadowBlur = 0; ctx.fillStyle = '#3e2723'; ctx.fillRect(this.x + this.radius + 15, this.y - 30, 8, 80);
+                ctx.fillStyle = '#111'; ctx.fillRect(this.x + this.radius + 5, this.y - 20, 28, 15);
+                ctx.fillStyle = '#ff4500'; ctx.beginPath(); ctx.moveTo(this.x + this.radius + 30, this.y - 20); ctx.lineTo(this.x + this.radius + 60, this.y - 40); ctx.lineTo(this.x + this.radius + 65, this.y - 12); ctx.lineTo(this.x + this.radius + 60, this.y + 15); ctx.lineTo(this.x + this.radius + 30, this.y - 5); ctx.fill();
                 break;
 
             case 'priestess':
@@ -577,6 +600,11 @@ class Boss {
                 // O buraco onde deveria estar a face
                 ctx.fillStyle = '#000'; ctx.shadowBlur = 0; ctx.beginPath(); ctx.arc(this.x, this.y - 20, 10, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y - 20, 2, 0, Math.PI*2); ctx.fill();
+                // Orbe do Vazio (Arma)
+                const orbY = this.y - 20 + Math.sin(Date.now()/200)*10;
+                ctx.fillStyle = '#000'; ctx.shadowBlur = 20; ctx.shadowColor = '#8a2be2';
+                ctx.beginPath(); ctx.arc(this.x + this.radius + 20, orbY, 12, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#9400d3'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(this.x + this.radius + 20, orbY, 18, 0, Math.PI*2); ctx.stroke();
                 break;
 
             case 'dragon':
@@ -626,6 +654,12 @@ class Boss {
                 ctx.fillStyle = '#ffcc00'; ctx.shadowBlur = 15; ctx.shadowColor = '#ffcc00';
                 ctx.beginPath(); ctx.moveTo(this.x - 22, this.y - 65); ctx.lineTo(this.x - 10, this.y - 60); ctx.lineTo(this.x - 16, this.y - 55); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(this.x + 22, this.y - 65); ctx.lineTo(this.x + 10, this.y - 60); ctx.lineTo(this.x + 16, this.y - 55); ctx.fill();
+                // Garras Flamejantes Gigantes (Armas naturais)
+                ctx.fillStyle = '#ff8c00'; ctx.shadowBlur = 15; ctx.shadowColor = '#ff0000';
+                ctx.beginPath(); ctx.moveTo(this.x + 40, this.y + 30); ctx.lineTo(this.x + 70, this.y + 60); ctx.lineTo(this.x + 50, this.y + 30); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x + 50, this.y + 25); ctx.lineTo(this.x + 80, this.y + 45); ctx.lineTo(this.x + 60, this.y + 20); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x - 40, this.y + 30); ctx.lineTo(this.x - 70, this.y + 60); ctx.lineTo(this.x - 50, this.y + 30); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(this.x - 50, this.y + 25); ctx.lineTo(this.x - 80, this.y + 45); ctx.lineTo(this.x - 60, this.y + 20); ctx.fill();
                 break;
         }
 

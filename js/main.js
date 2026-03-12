@@ -60,11 +60,24 @@ function gameLoop(timestamp) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (dungeon.gameState === 'playing') {
-        player.update(keys, mouse, deltaTime, canvas.width, canvas.height);
+        const isSpawning = dungeon.currentBoss && dungeon.currentBoss.state === 'spawning';
+
+        let activeKeys = keys;
+        let activeMouse = mouse;
+        
+        if (isSpawning) {
+            activeKeys = {}; // Jogador não pode se mover
+            activeMouse = { ...mouse, click: false, rightClick: false }; // Jogador não pode atacar
+        }
+
+        player.update(activeKeys, activeMouse, deltaTime, canvas.width, canvas.height);
         dungeon.currentBoss.update(player, deltaTime, canvas.width, canvas.height);
 
         // Ataques do Jogador
-        handleCombat();
+        if (!isSpawning) {
+            handleCombat();
+        }
+        
         updateProjectiles();
         updateParticles(deltaTime);
 
@@ -73,9 +86,11 @@ function gameLoop(timestamp) {
         dungeon.currentBoss.draw(ctx);
         drawProjectiles();
         drawParticles();
-        player.draw(ctx, mouse);
+        player.draw(ctx, activeMouse);
 
-        dungeon.update(player);
+        if (!isSpawning) {
+            dungeon.update(player);
+        }
     }
 
     requestAnimationFrame(gameLoop);
